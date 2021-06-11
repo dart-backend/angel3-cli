@@ -8,8 +8,6 @@ import 'package:glob/list_local_fs.dart';
 import 'package:io/ansi.dart';
 import 'package:prompts/prompts.dart' as prompts;
 import 'package:recase/recase.dart';
-import '../util.dart';
-import 'pub.dart';
 
 class RenameCommand extends Command {
   @override
@@ -22,12 +20,12 @@ class RenameCommand extends Command {
   String get invocation => '$name <new name>';
 
   @override
-  run() async {
+  Future run() async {
     String newName;
 
-    if (argResults.rest.isNotEmpty)
+    if (argResults.rest.isNotEmpty) {
       newName = argResults.rest.first;
-    else {
+    } else {
       newName = prompts.get('Rename project to');
     }
 
@@ -63,7 +61,7 @@ class RenameCommand extends Command {
   }
 }
 
-renamePubspec(Directory dir, String oldName, String newName) async {
+Future renamePubspec(Directory dir, String oldName, String newName) async {
 //  var pubspec = await loadPubspec(dir);
   print(cyan.wrap('Renaming your project to `$newName.`'));
 
@@ -86,7 +84,7 @@ renamePubspec(Directory dir, String oldName, String newName) async {
 //  await newPubspec.save(dir);
 }
 
-renameDartFiles(Directory dir, String oldName, String newName) async {
+Future renameDartFiles(Directory dir, String oldName, String newName) async {
   if (!await dir.exists()) return;
 
   // Try to replace MongoDB URL
@@ -154,24 +152,25 @@ class RenamingVisitor extends RecursiveAstVisitor {
       return 'package:$newName/$newName.dart';
     } else if (uri.startsWith('package:$oldName/')) {
       return 'package:$newName/' + uri.replaceFirst('package:$oldName/', '');
-    } else
+    } else {
       return uri;
+    }
   }
 
   @override
-  visitExportDirective(ExportDirective ctx) {
+  void visitExportDirective(ExportDirective ctx) {
     var uri = ctx.uri.stringValue, updated = updateUri(uri);
     if (uri != updated) replace[[uri]] = updated;
   }
 
   @override
-  visitImportDirective(ImportDirective ctx) {
+  void visitImportDirective(ImportDirective ctx) {
     var uri = ctx.uri.stringValue, updated = updateUri(uri);
     if (uri != updated) replace[[uri]] = updated;
   }
 
   @override
-  visitLibraryDirective(LibraryDirective ctx) {
+  void visitLibraryDirective(LibraryDirective ctx) {
     var name = ctx.name.name;
 
     if (name.startsWith(oldName)) {
@@ -181,7 +180,7 @@ class RenamingVisitor extends RecursiveAstVisitor {
   }
 
   @override
-  visitPartOfDirective(PartOfDirective ctx) {
+  void visitPartOfDirective(PartOfDirective ctx) {
     if (ctx.libraryName != null) {
       var name = ctx.libraryName.name;
 

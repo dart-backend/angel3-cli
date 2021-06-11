@@ -10,10 +10,10 @@ import 'maker.dart';
 
 class PluginCommand extends Command {
   @override
-  String get name => "plugin";
+  String get name => 'plugin';
 
   @override
-  String get description => "Creates a new plug-in within the given project.";
+  String get description => 'Creates a new plug-in within the given project.';
 
   PluginCommand() {
     argParser
@@ -25,7 +25,7 @@ class PluginCommand extends Command {
   }
 
   @override
-  run() async {
+  Future run() async {
     var pubspec = await loadPubspec();
     String name;
     if (argResults.wasParsed('name')) name = argResults['name'] as String;
@@ -34,18 +34,18 @@ class PluginCommand extends Command {
       name = prompts.get('Name of plug-in class');
     }
 
-    List<MakerDependency> deps = [
+    var deps = <MakerDependency>[
       const MakerDependency('angel_framework', '^2.0.0')
     ];
 
-    var rc = new ReCase(name);
-    final pluginDir = new Directory.fromUri(
+    var rc = ReCase(name);
+    final pluginDir = Directory.fromUri(
         Directory.current.uri.resolve(argResults['output-dir'] as String));
     final pluginFile =
-        new File.fromUri(pluginDir.uri.resolve("${rc.snakeCase}.dart"));
+        File.fromUri(pluginDir.uri.resolve('${rc.snakeCase}.dart'));
     if (!await pluginFile.exists()) await pluginFile.create(recursive: true);
-    await pluginFile.writeAsString(
-        new DartFormatter().format(_generatePlugin(pubspec, rc)));
+    await pluginFile
+        .writeAsString(DartFormatter().format(_generatePlugin(pubspec, rc)));
 
     if (deps.isNotEmpty) await depend(deps);
 

@@ -10,7 +10,7 @@ class KeyCommand extends Command {
   String get description => 'Generates a new `angel_auth` key.';
 
   @override
-  run() async {
+  Future run() async {
     var secret = rs.randomAlphaNumeric(32);
     print('Generated new development JWT secret: $secret');
     await changeSecret(File('config/default.yaml'), secret);
@@ -20,7 +20,7 @@ class KeyCommand extends Command {
     await changeSecret(File('config/production.yaml'), secret);
   }
 
-  changeSecret(File file, String secret) async {
+  Future changeSecret(File file, String secret) async {
     if (await file.exists()) {
       var contents = await file.readAsString();
       contents = contents.replaceAll(RegExp(r'jwt_secret:[^\n]+\n?'), '');

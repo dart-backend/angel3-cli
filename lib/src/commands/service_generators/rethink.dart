@@ -1,6 +1,6 @@
 import 'generator.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:inflection2/inflection2.dart';
+import 'package:inflection3/inflection3.dart';
 import '../make/maker.dart';
 
 class RethinkServiceGenerator extends ServiceGenerator {
@@ -8,7 +8,7 @@ class RethinkServiceGenerator extends ServiceGenerator {
 
   @override
   List<MakerDependency> get dependencies =>
-      const [const MakerDependency('angel_rethink', '^2.0.0')];
+      const [MakerDependency('angel_rethink', '^2.0.0')];
 
   @override
   bool get createsModel => false;
@@ -21,10 +21,10 @@ class RethinkServiceGenerator extends ServiceGenerator {
       String name,
       String lower) {
     configureServer.requiredParameters.addAll([
-      new Parameter((b) => b
+      Parameter((b) => b
         ..name = 'connection'
         ..type = refer('Connection')),
-      new Parameter((b) => b
+      Parameter((b) => b
         ..name = 'r'
         ..type = refer('Rethinkdb')),
     ]);
@@ -35,7 +35,7 @@ class RethinkServiceGenerator extends ServiceGenerator {
     library.directives.addAll([
       'package:angel_rethink/angel_rethink.dart',
       'package:rethinkdb_dart/rethinkdb_dart.dart'
-    ].map((str) => new Directive.import(str)));
+    ].map((str) => Directive.import(str)));
   }
 
   @override

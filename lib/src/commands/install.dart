@@ -46,7 +46,7 @@ class InstallCommand extends Command {
   }
 
   @override
-  run() async {
+  Future run() async {
     print(yellow.wrap(
         'WARNING: The `install` command is no longer considered necessary, and has been deprecated.\n'
         'Expect it to be removed in an upcoming release.\n\n'
@@ -65,8 +65,9 @@ class InstallCommand extends Command {
     } else if (argResults['update'] as bool) {
       await update();
     } else if (argResults.rest.isNotEmpty) {
-      if (!await installRepo.exists())
+      if (!await installRepo.exists()) {
         throw 'No local add-on database exists. Run `angel install --update` first.';
+      }
 
       var pubspec = await loadPubspec();
 
@@ -74,8 +75,9 @@ class InstallCommand extends Command {
         var packageDir =
             Directory.fromUri(installRepo.uri.resolve(packageName));
 
-        if (!await packageDir.exists())
+        if (!await packageDir.exists()) {
           throw 'No add-on named "$packageName" is installed. You might need to run `angel install --update`.';
+        }
         print('Installing $packageName...');
 
         Map values = {
@@ -83,14 +85,15 @@ class InstallCommand extends Command {
           'pubspec': pubspec,
         };
 
-        List<Glob> globs = [];
+        var globs = <Glob>[];
 
         var projectPubspec = await loadPubspec(packageDir);
         var deps = projectPubspec.dependencies.keys
             .map((k) {
               var dep = projectPubspec.dependencies[k];
-              if (dep is HostedDependency)
+              if (dep is HostedDependency) {
                 return MakerDependency(k, dep.version.toString());
+              }
               return null;
             })
             .where((d) => d != null)
@@ -98,8 +101,9 @@ class InstallCommand extends Command {
 
         deps.addAll(projectPubspec.devDependencies.keys.map((k) {
           var dep = projectPubspec.devDependencies[k];
-          if (dep is HostedDependency)
+          if (dep is HostedDependency) {
             return MakerDependency(k, dep.version.toString(), dev: true);
+          }
           return null;
         }).where((d) => d != null));
 
@@ -151,7 +155,7 @@ class InstallCommand extends Command {
               var name = p.basename(entity.path);
               var target = dst.uri.resolve(name);
               var targetFile = File.fromUri(target);
-              bool allClear = !await targetFile.exists();
+              var allClear = !await targetFile.exists();
 
               if (!allClear) {
                 print('The file ${entity.absolute.path} already exists.');
@@ -199,7 +203,7 @@ class InstallCommand extends Command {
     if (!await installRepo.exists()) {
       throw 'No local add-on database exists. Run `angel install --update` first.';
     } else {
-      List<Pubspec> repos = [];
+      var repos = <Pubspec>[];
 
       await for (var entity in installRepo.list()) {
         if (entity is Directory) {

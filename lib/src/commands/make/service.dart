@@ -2,10 +2,9 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
-import 'package:inflection2/inflection2.dart';
+import 'package:inflection3/inflection3.dart';
 import 'package:io/ansi.dart';
 import 'package:prompts/prompts.dart' as prompts;
-import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:recase/recase.dart';
 import '../service_generators/service_generators.dart';
 import '../../util.dart';
@@ -46,8 +45,8 @@ class ServiceCommand extends Command {
     ];
 
     // '${pubspec.name}.src.services.${rc.snakeCase}'
-    var rc = new ReCase(name);
-    var serviceLib = new Library((serviceLib) {
+    var rc = ReCase(name);
+    var serviceLib = Library((serviceLib) {
       var generator = prompts.choose(
           'Choose which type of service to create', serviceGenerators);
 
@@ -64,37 +63,37 @@ class ServiceCommand extends Command {
 
       if (generator.goesFirst) {
         generator.applyToLibrary(serviceLib, name, rc.snakeCase);
-        serviceLib.directives.add(new Directive.import(
-            'package:angel_framework/angel_framework.dart'));
+        serviceLib.directives.add(
+            Directive.import('package:angel_framework/angel_framework.dart'));
       } else {
-        serviceLib.directives.add(new Directive.import(
-            'package:angel_framework/angel_framework.dart'));
+        serviceLib.directives.add(
+            Directive.import('package:angel_framework/angel_framework.dart'));
         generator.applyToLibrary(serviceLib, name, rc.snakeCase);
       }
 
       if (argResults['typed'] as bool) {
         serviceLib.directives
-            .add(new Directive.import('../models/${rc.snakeCase}.dart'));
+            .add(Directive.import('../models/${rc.snakeCase}.dart'));
       }
 
       // configureServer() {}
-      serviceLib.body.add(new Method((configureServer) {
+      serviceLib.body.add(Method((configureServer) {
         configureServer
           ..name = 'configureServer'
           ..returns = refer('AngelConfigurer');
 
-        configureServer.body = new Block((block) {
+        configureServer.body = Block((block) {
           generator.applyToConfigureServer(
               serviceLib, configureServer, block, name, rc.snakeCase);
 
           // return (Angel app) async {}
-          var closure = new Method((closure) {
+          var closure = Method((closure) {
             closure
               ..modifier = MethodModifier.async
-              ..requiredParameters.add(new Parameter((b) => b
+              ..requiredParameters.add(Parameter((b) => b
                 ..name = 'app'
                 ..type = refer('Angel')));
-            closure.body = new Block((block) {
+            closure.body = Block((block) {
               generator.beforeService(serviceLib, block, name, rc.snakeCase);
 
               // app.use('/api/todos', new MapService());
@@ -102,7 +101,7 @@ class ServiceCommand extends Command {
                   serviceLib, closure, name, rc.snakeCase);
 
               if (argResults['typed'] as bool) {
-                var tb = new TypeReference((b) => b
+                var tb = TypeReference((b) => b
                   ..symbol = 'TypedService'
                   ..types.add(refer(rc.pascalCase)));
                 service = tb.newInstance([service]);
@@ -120,13 +119,13 @@ class ServiceCommand extends Command {
       }));
     });
 
-    final outputDir = new Directory.fromUri(
+    final outputDir = Directory.fromUri(
         Directory.current.uri.resolve(argResults['output-dir'] as String));
     final serviceFile =
-        new File.fromUri(outputDir.uri.resolve("${rc.snakeCase}.dart"));
+        File.fromUri(outputDir.uri.resolve("${rc.snakeCase}.dart"));
     if (!await serviceFile.exists()) await serviceFile.create(recursive: true);
-    await serviceFile.writeAsString(new DartFormatter()
-        .format(serviceLib.accept(new DartEmitter()).toString()));
+    await serviceFile.writeAsString(
+        DartFormatter().format(serviceLib.accept(DartEmitter()).toString()));
 
     print(green.wrap(
         '$checkmark Successfully generated service file "${serviceFile.absolute.path}".'));

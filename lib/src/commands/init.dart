@@ -1,6 +1,6 @@
 import 'dart:async';
-import "dart:io";
-import "package:args/command_runner.dart";
+import 'dart:io';
+import 'package:args/command_runner.dart';
 import 'package:io/ansi.dart';
 import 'package:path/path.dart' as p;
 import 'package:prompts/prompts.dart' as prompts;
@@ -15,11 +15,11 @@ class InitCommand extends Command {
   final KeyCommand _key = KeyCommand();
 
   @override
-  String get name => "init";
+  String get name => 'init';
 
   @override
   String get description =>
-      "Initializes a new Angel project in the current directory.";
+      'Initializes a new Angel project in the current directory.';
 
   InitCommand() {
     argParser
@@ -33,10 +33,10 @@ class InitCommand extends Command {
   }
 
   @override
-  run() async {
-    Directory projectDir =
-        Directory(argResults.rest.isEmpty ? "." : argResults.rest[0]);
-    print("Creating new Angel project in ${projectDir.absolute.path}...");
+  void run() async {
+    var projectDir =
+        Directory(argResults.rest.isEmpty ? '.' : argResults.rest[0]);
+    print('Creating new Angel project in ${projectDir.absolute.path}...');
     await _cloneRepo(projectDir);
     // await preBuild(projectDir);
     var secret = rs.randomAlphaNumeric(32);
@@ -64,7 +64,7 @@ class InitCommand extends Command {
       await _pubGet(projectDir);
     }
 
-    print(green.wrap("$checkmark Successfully initialized Angel project."));
+    print(green.wrap('$checkmark Successfully initialized Angel project.'));
 
     stdout
       ..writeln()
@@ -87,21 +87,27 @@ class InitCommand extends Command {
       ..writeln('Happy coding!');
   }
 
-  _deleteRecursive(FileSystemEntity entity, [bool self = true]) async {
+  Future _deleteRecursive(FileSystemEntity entity, [bool self = true]) async {
     if (entity is Directory) {
       await for (var entity in entity.list(recursive: true)) {
         try {
           await _deleteRecursive(entity);
-        } catch (e) {}
+        } catch (e) {
+          print(e);
+        }
       }
 
       try {
         if (self != false) await entity.delete(recursive: true);
-      } catch (e) {}
+      } catch (e) {
+        print(e);
+      }
     } else if (entity is File) {
       try {
         await entity.delete(recursive: true);
-      } catch (e) {}
+      } catch (e) {
+        print(e);
+      }
     } else if (entity is Link) {
       var path = await entity.resolveSymbolicLinks();
       var stat = await FileStat.stat(path);
@@ -117,7 +123,7 @@ class InitCommand extends Command {
     }
   }
 
-  _cloneRepo(Directory projectDir) async {
+  Future _cloneRepo(Directory projectDir) async {
     Directory boilerplateDir;
 
     try {
@@ -125,12 +131,12 @@ class InitCommand extends Command {
         var shouldDelete = prompts.getBool(
             "Directory '${projectDir.absolute.path}' already exists. Overwrite it?");
 
-        if (!shouldDelete)
-          throw "Chose not to overwrite existing directory.";
-        else if (projectDir.absolute.uri.normalizePath().toFilePath() !=
-            Directory.current.absolute.uri.normalizePath().toFilePath())
+        if (!shouldDelete) {
+          throw 'Chose not to overwrite existing directory.';
+        } else if (projectDir.absolute.uri.normalizePath().toFilePath() !=
+            Directory.current.absolute.uri.normalizePath().toFilePath()) {
           await projectDir.delete(recursive: true);
-        else {
+        } else {
           await _deleteRecursive(projectDir, false);
         }
       }
@@ -165,11 +171,11 @@ class InitCommand extends Command {
           print(darkGray.wrap(
               '\$ git clone --depth 1 ${boilerplate.url} ${boilerplateDir.absolute.path}'));
           git = await Process.start(
-            "git",
+            'git',
             [
-              "clone",
-              "--depth",
-              "1",
+              'clone',
+              '--depth',
+              '1',
               boilerplate.url,
               boilerplateDir.absolute.path
             ],
@@ -180,13 +186,13 @@ class InitCommand extends Command {
           print(darkGray.wrap(
               '\$ git clone --depth 1 --single-branch -b ${boilerplate.ref} ${boilerplate.url} ${boilerplateDir.absolute.path}'));
           git = await Process.start(
-            "git",
+            'git',
             [
-              "clone",
-              "--depth",
-              "1",
-              "--single-branch",
-              "-b",
+              'clone',
+              '--depth',
+              '1',
+              '--single-branch',
+              '-b',
               boilerplate.ref,
               boilerplate.url,
               boilerplateDir.absolute.path
@@ -196,19 +202,19 @@ class InitCommand extends Command {
         }
 
         if (await git.exitCode != 0) {
-          throw Exception("Could not clone repo.");
+          throw Exception('Could not clone repo.');
         }
       }
 
       // Otherwise, pull from git.
       else if (!(argResults['offline'] as bool)) {
         print(darkGray.wrap('\$ git pull origin $branch'));
-        var git = await Process.start("git", ['pull', 'origin', '$branch'],
+        var git = await Process.start('git', ['pull', 'origin', '$branch'],
             mode: ProcessStartMode.inheritStdio,
             workingDirectory: boilerplateDir.absolute.path);
         if (await git.exitCode != 0) {
           print(yellow.wrap(
-              "Update of $branch failed. Attempting to continue with existing contents."));
+              'Update of $branch failed. Attempting to continue with existing contents.'));
         }
       } else {
         print(darkGray.wrap(
@@ -222,27 +228,27 @@ class InitCommand extends Command {
         await preBuild(projectDir).catchError((_) => null);
       }
 
-      var gitDir = Directory.fromUri(projectDir.uri.resolve(".git"));
+      var gitDir = Directory.fromUri(projectDir.uri.resolve('.git'));
       if (await gitDir.exists()) await gitDir.delete(recursive: true);
     } catch (e) {
       await boilerplateDir.delete(recursive: true).catchError((_) => null);
 
       if (e is! String) {
-        print(red.wrap("$ballot Could not initialize Angel project."));
+        print(red.wrap('$ballot Could not initialize Angel project.'));
       }
       rethrow;
     }
   }
 
-  _pubGet(Directory projectDir) async {
+  Future _pubGet(Directory projectDir) async {
     var pubPath = resolvePub();
     print(darkGray.wrap('Running pub at "$pubPath"...'));
     print(darkGray.wrap('\$ $pubPath get'));
-    var pub = await Process.start(pubPath, ["get"],
+    var pub = await Process.start(pubPath, ['get'],
         workingDirectory: projectDir.absolute.path,
         mode: ProcessStartMode.inheritStdio);
     var code = await pub.exitCode;
-    print("Pub process exited with code $code");
+    print('Pub process exited with code $code');
   }
 }
 
@@ -261,49 +267,49 @@ Future preBuild(Directory projectDir) async {
   if (buildCode != 0) throw Exception('Failed to pre-build resources.');
 }
 
-const RepoArchiveLocation = "https://github.com/angel-dart";
-const RepoLocation = "https://github.com/dukefirehawk";
+const RepoArchiveLocation = 'https://github.com/angel-dart';
+const RepoLocation = 'https://github.com/dukefirehawk';
 
-const BoilerplateInfo graphQLBoilerplate = const BoilerplateInfo(
+const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
   'GraphQL',
-  "A starting point for GraphQL API servers.",
-  '${RepoLocation}/boilerplates.git',
+  'A starting point for GraphQL API servers.',
+  '$RepoLocation/boilerplates.git',
   ref: 'graphql-sdk-2.12.x',
 );
 
-const BoilerplateInfo ormBoilerplate = const BoilerplateInfo(
+const BoilerplateInfo ormBoilerplate = BoilerplateInfo(
   'ORM',
   "A starting point for applications that use Angel's ORM.",
-  '${RepoLocation}/boilerplates.git',
+  '$RepoLocation/boilerplates.git',
   ref: 'orm-sdk-2.12.x',
 );
 
-const BoilerplateInfo basicBoilerplate = const BoilerplateInfo(
+const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
     'Basic',
     'Minimal starting point for Angel 2.x - A simple server with only a few additional packages.',
-    '${RepoLocation}/boilerplates.git',
+    '$RepoLocation/boilerplates.git',
     ref: 'basic-sdk-2.12.x');
 
-const BoilerplateInfo legacyBoilerplate = const BoilerplateInfo(
+const BoilerplateInfo legacyBoilerplate = BoilerplateInfo(
   'Legacy',
   'Minimal starting point for applications running Angel 1.1.x.',
-  '${RepoArchiveLocation}/angel.git',
+  '$RepoArchiveLocation/angel.git',
   ref: '1.1.x',
 );
 
-const BoilerplateInfo sharedBoilerplate = const BoilerplateInfo(
+const BoilerplateInfo sharedBoilerplate = BoilerplateInfo(
     'Shared',
     'Holds common models and files shared across multiple Dart projects.',
-    '${RepoLocation}/boilerplate_shared.git');
+    '$RepoLocation/boilerplate_shared.git');
 
-const BoilerplateInfo sharedOrmBoilerplate = const BoilerplateInfo(
+const BoilerplateInfo sharedOrmBoilerplate = BoilerplateInfo(
   'Shared (ORM)',
   'Holds common models and files shared across multiple Dart projects.',
-  '${RepoLocation}/boilerplate_shared.git',
+  '$RepoLocation/boilerplate_shared.git',
   ref: 'orm',
 );
 
-const List<BoilerplateInfo> boilerplates = const [
+const List<BoilerplateInfo> boilerplates = [
   basicBoilerplate,
   //legacyBoilerplate,
   ormBoilerplate,
@@ -317,7 +323,7 @@ class BoilerplateInfo {
   final bool needsPrebuild;
 
   const BoilerplateInfo(this.name, this.description, this.url,
-      {this.ref, this.needsPrebuild: false});
+      {this.ref, this.needsPrebuild = false});
 
   @override
   String toString() => '$name ($description)';

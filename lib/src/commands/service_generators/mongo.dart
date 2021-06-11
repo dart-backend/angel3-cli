@@ -1,6 +1,6 @@
 import 'generator.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:inflection2/inflection2.dart';
+import 'package:inflection3/inflection3.dart';
 import '../make/maker.dart';
 
 class MongoServiceGenerator extends ServiceGenerator {
@@ -8,7 +8,7 @@ class MongoServiceGenerator extends ServiceGenerator {
 
   @override
   List<MakerDependency> get dependencies =>
-      const [const MakerDependency('angel_mongo', '^2.0.0')];
+      const [MakerDependency('angel_mongo', '^2.0.0')];
 
   @override
   bool get createsModel => false;
@@ -20,7 +20,7 @@ class MongoServiceGenerator extends ServiceGenerator {
       BlockBuilder block,
       String name,
       String lower) {
-    configureServer.requiredParameters.add(new Parameter((b) => b
+    configureServer.requiredParameters.add(Parameter((b) => b
       ..name = 'db'
       ..type = refer('Db')));
   }
@@ -28,8 +28,8 @@ class MongoServiceGenerator extends ServiceGenerator {
   @override
   void applyToLibrary(LibraryBuilder library, String name, String lower) {
     library.directives.addAll([
-      new Directive.import('package:angel_mongo/angel_mongo.dart'),
-      new Directive.import('package:mongo_dart/mongo_dart.dart'),
+      Directive.import('package:angel_mongo/angel_mongo.dart'),
+      Directive.import('package:mongo_dart/mongo_dart.dart'),
     ]);
   }
 

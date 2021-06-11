@@ -7,7 +7,7 @@ final Random _rnd = Random.secure();
 String randomAlphaNumeric(int length) {
   var b = StringBuffer();
 
-  for (int i = 0; i < length; i++) {
+  for (var i = 0; i < length; i++) {
     b.writeCharCode(_valid.codeUnitAt(_rnd.nextInt(_valid.length)));
   }
 

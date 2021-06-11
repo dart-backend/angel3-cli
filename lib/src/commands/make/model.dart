@@ -32,7 +32,7 @@ class ModelCommand extends Command {
   }
 
   @override
-  run() async {
+  Future run() async {
     String name;
     if (argResults.wasParsed('name')) name = argResults['name'] as String;
 
@@ -40,16 +40,16 @@ class ModelCommand extends Command {
       name = prompts.get('Name of model class');
     }
 
-    List<MakerDependency> deps = [
+    var deps = <MakerDependency>[
       const MakerDependency('angel_model', '^1.0.0'),
     ];
 
-    var rc = new ReCase(name);
+    var rc = ReCase(name);
 
-    var modelLib = new Library((modelLib) {
+    var modelLib = Library((modelLib) {
       if (argResults['orm'] as bool && argResults['migration'] as bool) {
         modelLib.directives.addAll([
-          new Directive.import('package:angel_migration/angel_migration.dart'),
+          Directive.import('package:angel_migration/angel_migration.dart'),
         ]);
       }
 
@@ -58,8 +58,8 @@ class ModelCommand extends Command {
       // argResults['migration'] as bool;
 
       if (needsSerialize) {
-        modelLib.directives.add(new Directive.import(
-            'package:angel_serialize/angel_serialize.dart'));
+        modelLib.directives.add(
+            Directive.import('package:angel_serialize/angel_serialize.dart'));
         deps.add(const MakerDependency('angel_serialize', '^2.0.0'));
         deps.add(const MakerDependency('angel_serialize_generator', '^2.0.0'));
         deps.add(const MakerDependency('build_runner', '^1.0.0'));
@@ -73,16 +73,16 @@ class ModelCommand extends Command {
 
       if (argResults['orm'] as bool) {
         modelLib.directives.addAll([
-          new Directive.import('package:angel_orm/angel_orm.dart'),
+          Directive.import('package:angel_orm/angel_orm.dart'),
         ]);
         deps.add(const MakerDependency('angel_orm', '^2.0.0'));
       }
 
       modelLib.body.addAll([
-        new Code("part '${rc.snakeCase}.g.dart';"),
+        Code("part '${rc.snakeCase}.g.dart';"),
       ]);
 
-      modelLib.body.add(new Class((modelClazz) {
+      modelLib.body.add(Class((modelClazz) {
         modelClazz
           ..abstract = true
           ..name = needsSerialize ? '_${rc.pascalCase}' : rc.pascalCase
@@ -105,14 +105,13 @@ class ModelCommand extends Command {
     });
 
     // Save model file
-    var outputDir = new Directory.fromUri(
+    var outputDir = Directory.fromUri(
         Directory.current.uri.resolve(argResults['output-dir'] as String));
-    var modelFile =
-        new File.fromUri(outputDir.uri.resolve('${rc.snakeCase}.dart'));
+    var modelFile = File.fromUri(outputDir.uri.resolve('${rc.snakeCase}.dart'));
     if (!await modelFile.exists()) await modelFile.create(recursive: true);
 
-    await modelFile.writeAsString(new DartFormatter()
-        .format(modelLib.accept(new DartEmitter()).toString()));
+    await modelFile.writeAsString(
+        DartFormatter().format(modelLib.accept(DartEmitter()).toString()));
 
     print(green
         .wrap('$checkmark Created model file "${modelFile.absolute.path}".'));

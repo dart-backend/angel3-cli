@@ -30,8 +30,7 @@ class ControllerCommand extends Command {
   }
 
   @override
-  run() async {
-    var pubspec = await loadPubspec();
+  Future run() async {
     String name;
     if (argResults.wasParsed('name')) name = argResults['name'] as String;
 
@@ -39,24 +38,24 @@ class ControllerCommand extends Command {
       name = prompts.get('Name of controller class');
     }
 
-    List<MakerDependency> deps = [
+    var deps = <MakerDependency>[
       const MakerDependency('angel_framework', '^2.0.0')
     ];
 
     //${pubspec.name}.src.models.${rc.snakeCase}
 
-    var rc = new ReCase(name);
-    var controllerLib = new Library((controllerLib) {
+    var rc = ReCase(name);
+    var controllerLib = Library((controllerLib) {
       if (argResults['websocket'] as bool) {
         deps.add(const MakerDependency('angel_websocket', '^2.0.0'));
         controllerLib.directives
-            .add(new Directive.import('package:angel_websocket/server.dart'));
+            .add(Directive.import('package:angel_websocket/server.dart'));
       } else {
-        controllerLib.directives.add(new Directive.import(
-            'package:angel_framework/angel_framework.dart'));
+        controllerLib.directives.add(
+            Directive.import('package:angel_framework/angel_framework.dart'));
       }
 
-      controllerLib.body.add(new Class((clazz) {
+      controllerLib.body.add(Class((clazz) {
         clazz
           ..name = '${rc.pascalCase}Controller'
           ..extend = refer(argResults['websocket'] as bool
@@ -65,24 +64,24 @@ class ControllerCommand extends Command {
 
         if (argResults['websocket'] as bool) {
           // XController(AngelWebSocket ws) : super(ws);
-          clazz.constructors.add(new Constructor((b) {
+          clazz.constructors.add(Constructor((b) {
             b
-              ..requiredParameters.add(new Parameter((b) => b
+              ..requiredParameters.add(Parameter((b) => b
                 ..name = 'ws'
                 ..type = refer('AngelWebSocket')))
-              ..initializers.add(new Code('super(ws)'));
+              ..initializers.add(Code('super(ws)'));
           }));
 
-          clazz.methods.add(new Method((meth) {
+          clazz.methods.add(Method((meth) {
             meth
               ..name = 'hello'
               ..returns = refer('void')
               ..annotations
                   .add(refer('ExposeWs').call([literal('get_${rc.snakeCase}')]))
-              ..requiredParameters.add(new Parameter((b) => b
+              ..requiredParameters.add(Parameter((b) => b
                 ..name = 'socket'
                 ..type = refer('WebSocketContext')))
-              ..body = new Block((block) {
+              ..body = Block((block) {
                 block.addExpression(refer('socket').property('send').call([
                   literal('got_${rc.snakeCase}'),
                   literalMap({'message': literal('Hello, world!')}),
@@ -93,7 +92,7 @@ class ControllerCommand extends Command {
           clazz
             ..annotations
                 .add(refer('Expose').call([literal('/${rc.snakeCase}')]))
-            ..methods.add(new Method((meth) {
+            ..methods.add(Method((meth) {
               meth
                 ..name = 'hello'
                 ..returns = refer('String')
@@ -106,14 +105,15 @@ class ControllerCommand extends Command {
       }));
     });
 
-    var outputDir = new Directory.fromUri(
+    var outputDir = Directory.fromUri(
         Directory.current.uri.resolve(argResults['output-dir'] as String));
     var controllerFile =
-        new File.fromUri(outputDir.uri.resolve('${rc.snakeCase}.dart'));
-    if (!await controllerFile.exists())
+        File.fromUri(outputDir.uri.resolve('${rc.snakeCase}.dart'));
+    if (!await controllerFile.exists()) {
       await controllerFile.create(recursive: true);
-    await controllerFile.writeAsString(new DartFormatter()
-        .format(controllerLib.accept(new DartEmitter()).toString()));
+    }
+    await controllerFile.writeAsString(
+        DartFormatter().format(controllerLib.accept(DartEmitter()).toString()));
 
     print(green.wrap(
         '$checkmark Created controller file "${controllerFile.absolute.path}"'));

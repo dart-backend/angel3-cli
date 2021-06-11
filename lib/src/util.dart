@@ -12,16 +12,16 @@ final String ballot = ansiOutputEnabled ? '\u2717' : '[Failure]';
 String get homeDirPath =>
     Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
 
-Directory get homeDir => new Directory(homeDirPath);
+Directory get homeDir => Directory(homeDirPath);
 
 Directory get angelDir => Directory(p.join(homeDir.path, '.angel'));
 
 Future<Pubspec> loadPubspec([Directory directory]) {
   directory ??= Directory.current;
-  var file = new File.fromUri(directory.uri.resolve('pubspec.yaml'));
+  var file = File.fromUri(directory.uri.resolve('pubspec.yaml'));
   return file
       .readAsString()
-      .then((yaml) => new Pubspec.parse(yaml, sourceUrl: file.uri));
+      .then((yaml) => Pubspec.parse(yaml, sourceUrl: file.uri));
 }
 
 // From: https://gist.github.com/tobischw/98dcd2563eec9a2a87bda8299055358a

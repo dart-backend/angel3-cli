@@ -1,4 +1,4 @@
-# angel_cli
+# angel3_cli
 
 ![Screenshot of Terminal](screenshots/screenshot.png)
 
@@ -12,7 +12,7 @@ Includes functionality such as:
 * To install:
 
 ```bash
-$ pub global activate angel_cli
+$ pub global activate angel3_cli
 ```
 
 * Install development version
@@ -22,5 +22,5 @@ $ pub global activate angel_cli
 And then, for information on each command:
 
 ```bash
-$ angel help
+$ angel3 help
 ```

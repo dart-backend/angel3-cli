@@ -6,10 +6,10 @@ import 'mongo.dart';
 import 'rethink.dart';
 export 'generator.dart';
 
-const List<ServiceGenerator> serviceGenerators = const [
-  const MapServiceGenerator(),
-  const FileServiceGenerator(),
-  const MongoServiceGenerator(),
-  const RethinkServiceGenerator(),
-  const CustomServiceGenerator()
+const List<ServiceGenerator> serviceGenerators = [
+  MapServiceGenerator(),
+  FileServiceGenerator(),
+  MongoServiceGenerator(),
+  RethinkServiceGenerator(),
+  CustomServiceGenerator()
 ];

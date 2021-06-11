@@ -18,10 +18,11 @@ Future depend(Iterable<MakerDependency> deps) async {
 
   for (var dep in deps) {
     var isPresent = false;
-    if (dep.dev)
+    if (dep.dev) {
       isPresent = pubspec.devDependencies.containsKey(dep.name);
-    else
+    } else {
       isPresent = pubspec.dependencies.containsKey(dep.name);
+    }
 
     if (!isPresent) {
       missing.add(dep);

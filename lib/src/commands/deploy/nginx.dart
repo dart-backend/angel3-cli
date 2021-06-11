@@ -20,7 +20,7 @@ class NginxCommand extends Command {
   }
 
   @override
-  run() async {
+  Future run() async {
     var webPath = p.join(p.current, 'web');
     var nginxText = '''
 server {
@@ -42,7 +42,7 @@ server {
     if (!argResults.wasParsed('out')) {
       print(nginxText);
     } else {
-      var file = new File(argResults['out'] as String);
+      var file = File(argResults['out'] as String);
       await file.create(recursive: true);
       await file.writeAsString(nginxText);
       print(green.wrap(

@@ -10,10 +10,10 @@ import 'maker.dart';
 
 class TestCommand extends Command {
   @override
-  String get name => "test";
+  String get name => 'test';
 
   @override
-  String get description => "Creates a new test within the given project.";
+  String get description => 'Creates a new test within the given project.';
 
   TestCommand() {
     argParser
@@ -28,7 +28,7 @@ class TestCommand extends Command {
   }
 
   @override
-  run() async {
+  Future run() async {
     var pubspec = await loadPubspec();
     String name;
     if (argResults.wasParsed('name')) name = argResults['name'] as String;
@@ -37,20 +37,20 @@ class TestCommand extends Command {
       name = prompter.get('Name of test');
     }
 
-    List<MakerDependency> deps = [
+    var deps = <MakerDependency>[
       const MakerDependency('angel_framework', '^2.0.0'),
       const MakerDependency('angel_test', '^2.0.0', dev: true),
       const MakerDependency('test', '^1.0.0', dev: true),
     ];
 
-    var rc = new ReCase(name);
-    final testDir = new Directory.fromUri(
+    var rc = ReCase(name);
+    final testDir = Directory.fromUri(
         Directory.current.uri.resolve(argResults['output-dir'] as String));
     final testFile =
-        new File.fromUri(testDir.uri.resolve("${rc.snakeCase}_test.dart"));
+        File.fromUri(testDir.uri.resolve('${rc.snakeCase}_test.dart'));
     if (!await testFile.exists()) await testFile.create(recursive: true);
     await testFile
-        .writeAsString(new DartFormatter().format(_generateTest(pubspec, rc)));
+        .writeAsString(DartFormatter().format(_generateTest(pubspec, rc)));
 
     if (deps.isNotEmpty) await depend(deps);
 
@@ -58,7 +58,7 @@ class TestCommand extends Command {
         '$checkmark Successfully generated test file "${testFile.absolute.path}".'));
 
     if (argResults['run-configuration'] as bool) {
-      final runConfig = new File.fromUri(Directory.current.uri
+      final runConfig = File.fromUri(Directory.current.uri
           .resolve('.idea/runConfigurations/${name}_Tests.xml'));
 
       if (!await runConfig.exists()) await runConfig.create(recursive: true);

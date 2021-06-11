@@ -1,6 +1,6 @@
 import 'generator.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:inflection2/inflection2.dart';
+import 'package:inflection3/inflection3.dart';
 import '../make/maker.dart';
 
 class FileServiceGenerator extends ServiceGenerator {
@@ -8,7 +8,7 @@ class FileServiceGenerator extends ServiceGenerator {
 
   @override
   List<MakerDependency> get dependencies =>
-      const [const MakerDependency('angel_file_service', '^2.0.0')];
+      const [MakerDependency('angel_file_service', '^2.0.0')];
 
   @override
   bool get goesFirst => true;

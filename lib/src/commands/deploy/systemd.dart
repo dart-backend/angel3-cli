@@ -27,7 +27,7 @@ class SystemdCommand extends Command {
   }
 
   @override
-  run() async {
+  Future run() async {
     var projectPath = p.absolute(p.current);
     var pubspec = await loadPubspec();
     var user = argResults['user'];
@@ -55,7 +55,7 @@ WantedBy=multi-user.target
           : p.join('etc', 'systemd', 'system');
       var serviceFilename = p.join(systemdPath,
           p.setExtension(argResults['install'] as String, '.service'));
-      var file = new File(serviceFilename);
+      var file = File(serviceFilename);
       await file.create(recursive: true);
       await file.writeAsString(systemdText);
       print(green.wrap(
@@ -76,7 +76,7 @@ WantedBy=multi-user.target
         print(red.wrap('$ballot Failed to install service system-wide.'));
       }
     } else {
-      var file = new File(argResults['out'] as String);
+      var file = File(argResults['out'] as String);
       await file.create(recursive: true);
       await file.writeAsString(systemdText);
       print(green.wrap(
