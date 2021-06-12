@@ -23,8 +23,8 @@ class RenameCommand extends Command {
   Future run() async {
     String newName;
 
-    if (argResults.rest.isNotEmpty) {
-      newName = argResults.rest.first;
+    if (argResults!.rest.isNotEmpty) {
+      newName = argResults!.rest.first;
     } else {
       newName = prompts.get('Rename project to');
     }
@@ -126,9 +126,9 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
         visitor.replace.forEach((range, replacement) {
           if (range.first is int) {
             contents = contents.replaceRange(
-                range.first as int, range.last as int, replacement);
+                range.first as int, range.last as int?, replacement!);
           } else if (range.first is String) {
-            contents = contents.replaceAll(range.first as String, replacement);
+            contents = contents.replaceAll(range.first as String, replacement!);
           }
         });
 
@@ -141,16 +141,16 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
 
 class RenamingVisitor extends RecursiveAstVisitor {
   final String oldName, newName;
-  final Map<List, String> replace = {};
+  final Map<List, String?> replace = {};
 
   RenamingVisitor(this.oldName, this.newName) {
     replace[['{{$oldName}}']] = newName;
   }
 
-  String updateUri(String uri) {
+  String? updateUri(String? uri) {
     if (uri == 'package:$oldName/$oldName.dart') {
       return 'package:$newName/$newName.dart';
-    } else if (uri.startsWith('package:$oldName/')) {
+    } else if (uri!.startsWith('package:$oldName/')) {
       return 'package:$newName/' + uri.replaceFirst('package:$oldName/', '');
     } else {
       return uri;
@@ -182,7 +182,7 @@ class RenamingVisitor extends RecursiveAstVisitor {
   @override
   void visitPartOfDirective(PartOfDirective ctx) {
     if (ctx.libraryName != null) {
-      var name = ctx.libraryName.name;
+      var name = ctx.libraryName!.name;
 
       if (name.startsWith(oldName)) {
         replace[[ctx.offset, ctx.end]] =

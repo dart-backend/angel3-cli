@@ -30,8 +30,8 @@ class TestCommand extends Command {
   @override
   Future run() async {
     var pubspec = await loadPubspec();
-    String name;
-    if (argResults.wasParsed('name')) name = argResults['name'] as String;
+    String? name;
+    if (argResults!.wasParsed('name')) name = argResults!['name'] as String?;
 
     if (name?.isNotEmpty != true) {
       name = prompter.get('Name of test');
@@ -43,9 +43,9 @@ class TestCommand extends Command {
       const MakerDependency('test', '^1.0.0', dev: true),
     ];
 
-    var rc = ReCase(name);
+    var rc = ReCase(name!);
     final testDir = Directory.fromUri(
-        Directory.current.uri.resolve(argResults['output-dir'] as String));
+        Directory.current.uri.resolve(argResults!['output-dir'] as String));
     final testFile =
         File.fromUri(testDir.uri.resolve('${rc.snakeCase}_test.dart'));
     if (!await testFile.exists()) await testFile.create(recursive: true);
@@ -57,7 +57,7 @@ class TestCommand extends Command {
     print(green.wrap(
         '$checkmark Successfully generated test file "${testFile.absolute.path}".'));
 
-    if (argResults['run-configuration'] as bool) {
+    if (argResults!['run-configuration'] as bool) {
       final runConfig = File.fromUri(Directory.current.uri
           .resolve('.idea/runConfigurations/${name}_Tests.xml'));
 
@@ -69,7 +69,7 @@ class TestCommand extends Command {
     }
   }
 
-  String _generateRunConfiguration(String name, ReCase rc) {
+  String _generateRunConfiguration(String? name, ReCase rc) {
     return '''
     <component name="ProjectRunConfigurationManager">
       <configuration default="false" name="$name Tests" type="DartTestRunConfigurationType" factoryName="Dart Test" singleton="true">

@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:glob/glob.dart';
 import 'package:io/ansi.dart';
-import 'package:mustache4dart2/mustache4dart2.dart' as mustache;
+//import 'package:mustache4dart2/mustache4dart2.dart' as mustache;
+import 'package:mustache_template/mustache_template.dart' as mustache;
 import 'package:path/path.dart' as p;
 import 'package:prompts/prompts.dart' as prompts;
 import 'package:pubspec_parse/pubspec_parse.dart';
@@ -53,34 +54,34 @@ class InstallCommand extends Command {
         'See here: https://github.com/angel-dart/install.git\n\n'
         'To stop seeing this, downgrade to `package:angel_cli@<=2.0.0`.'));
 
-    if (argResults['wipe'] as bool) {
+    if (argResults!['wipe'] as bool) {
       if (await installRepo.exists()) await installRepo.delete(recursive: true);
-    } else if (argResults['list'] as bool) {
+    } else if (argResults!['list'] as bool) {
       var addons = await list();
       print('${addons.length} add-on(s) installed:');
 
       for (var addon in addons) {
         print('  * ${addon.name}@${addon.version}: ${addon.description}');
       }
-    } else if (argResults['update'] as bool) {
+    } else if (argResults!['update'] as bool) {
       await update();
-    } else if (argResults.rest.isNotEmpty) {
+    } else if (argResults!.rest.isNotEmpty) {
       if (!await installRepo.exists()) {
-        throw 'No local add-on database exists. Run `angel install --update` first.';
+        throw 'No local add-on database exists. Run `angel3 install --update` first.';
       }
 
       var pubspec = await loadPubspec();
 
-      for (var packageName in argResults.rest) {
+      for (var packageName in argResults!.rest) {
         var packageDir =
             Directory.fromUri(installRepo.uri.resolve(packageName));
 
         if (!await packageDir.exists()) {
-          throw 'No add-on named "$packageName" is installed. You might need to run `angel install --update`.';
+          throw 'No add-on named "$packageName" is installed. You might need to run `angel3 install --update`.';
         }
         print('Installing $packageName...');
 
-        Map values = {
+        var values = {
           'project_name': pubspec.name,
           'pubspec': pubspec,
         };
@@ -129,11 +130,11 @@ class InstallCommand extends Command {
               var desc = val[key]['description'] ?? key;
 
               if (val[key]['type'] == 'prompt') {
-                values[key] = prompts.get(desc.toString(),
+                values[key as String] = prompts.get(desc.toString(),
                     defaultsTo: val[key]['default']?.toString());
               } else if (val[key]['type'] == 'choice') {
-                values[key] = prompts.choose(
-                    desc.toString(), val[key]['choices'] as Iterable);
+                values[key as String] = prompts.choose(desc.toString(),
+                    (val[key]['choices'] as Iterable) as Iterable<Object>)!;
               }
             }
           }
@@ -171,8 +172,10 @@ class InstallCommand extends Command {
                     print(
                         'Rendering Mustache template from ${entity.absolute.path} to ${targetFile.absolute.path}...');
                     var contents = await entity.readAsString();
-                    var renderer = mustache.compile(contents);
-                    var generated = renderer(values);
+                    //var renderer = mustache.compile(contents);
+                    //var generated = renderer(values);
+                    var template = mustache.Template(contents);
+                    var generated = template.renderString(values);
                     await targetFile.writeAsString(generated.toString());
                   } else {
                     print(
@@ -201,7 +204,7 @@ class InstallCommand extends Command {
 
   Future<List<Pubspec>> list() async {
     if (!await installRepo.exists()) {
-      throw 'No local add-on database exists. Run `angel install --update` first.';
+      throw 'No local add-on database exists. Run `angel3 install --update` first.';
     } else {
       var repos = <Pubspec>[];
 

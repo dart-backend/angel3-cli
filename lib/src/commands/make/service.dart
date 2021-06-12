@@ -33,8 +33,8 @@ class ServiceCommand extends Command {
   @override
   run() async {
     var pubspec = await loadPubspec();
-    String name;
-    if (argResults.wasParsed('name')) name = argResults['name'] as String;
+    String? name;
+    if (argResults!.wasParsed('name')) name = argResults!['name'] as String?;
 
     if (name?.isNotEmpty != true) {
       name = prompts.get('Name of service');
@@ -45,10 +45,10 @@ class ServiceCommand extends Command {
     ];
 
     // '${pubspec.name}.src.services.${rc.snakeCase}'
-    var rc = ReCase(name);
+    var rc = ReCase(name!);
     var serviceLib = Library((serviceLib) {
       var generator = prompts.choose(
-          'Choose which type of service to create', serviceGenerators);
+          'Choose which type of service to create', serviceGenerators)!;
 
 //      if (generator == null) {
 //        _pen.red();
@@ -71,7 +71,7 @@ class ServiceCommand extends Command {
         generator.applyToLibrary(serviceLib, name, rc.snakeCase);
       }
 
-      if (argResults['typed'] as bool) {
+      if (argResults!['typed'] as bool) {
         serviceLib.directives
             .add(Directive.import('../models/${rc.snakeCase}.dart'));
       }
@@ -100,7 +100,7 @@ class ServiceCommand extends Command {
               var service = generator.createInstance(
                   serviceLib, closure, name, rc.snakeCase);
 
-              if (argResults['typed'] as bool) {
+              if (argResults!['typed'] as bool) {
                 var tb = TypeReference((b) => b
                   ..symbol = 'TypedService'
                   ..types.add(refer(rc.pascalCase)));
@@ -120,7 +120,7 @@ class ServiceCommand extends Command {
     });
 
     final outputDir = Directory.fromUri(
-        Directory.current.uri.resolve(argResults['output-dir'] as String));
+        Directory.current.uri.resolve(argResults!['output-dir'] as String));
     final serviceFile =
         File.fromUri(outputDir.uri.resolve("${rc.snakeCase}.dart"));
     if (!await serviceFile.exists()) await serviceFile.create(recursive: true);

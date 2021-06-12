@@ -30,7 +30,7 @@ class SystemdCommand extends Command {
   Future run() async {
     var projectPath = p.absolute(p.current);
     var pubspec = await loadPubspec();
-    var user = argResults['user'];
+    var user = argResults!['user'];
     var systemdText = '''
 [Unit]
 Description=`${pubspec.name}` server
@@ -47,14 +47,14 @@ WantedBy=multi-user.target
     '''
         .trim();
 
-    if (!argResults.wasParsed('out') && !argResults.wasParsed('install')) {
+    if (!argResults!.wasParsed('out') && !argResults!.wasParsed('install')) {
       print(systemdText);
-    } else if (argResults.wasParsed('install')) {
-      var systemdPath = argResults.wasParsed('out')
-          ? argResults['out'] as String
+    } else if (argResults!.wasParsed('install')) {
+      var systemdPath = argResults!.wasParsed('out')
+          ? (argResults!['out'] as String?)!
           : p.join('etc', 'systemd', 'system');
       var serviceFilename = p.join(systemdPath,
-          p.setExtension(argResults['install'] as String, '.service'));
+          p.setExtension(argResults!['install'] as String, '.service'));
       var file = File(serviceFilename);
       await file.create(recursive: true);
       await file.writeAsString(systemdText);
@@ -76,7 +76,7 @@ WantedBy=multi-user.target
         print(red.wrap('$ballot Failed to install service system-wide.'));
       }
     } else {
-      var file = File(argResults['out'] as String);
+      var file = File(argResults!['out'] as String);
       await file.create(recursive: true);
       await file.writeAsString(systemdText);
       print(green.wrap(

@@ -28,15 +28,15 @@ class MigrationCommand extends Command {
 
   @override
   FutureOr run() async {
-    String name;
-    if (argResults.wasParsed('name')) name = argResults['name'] as String;
+    String? name;
+    if (argResults!.wasParsed('name')) name = argResults!['name'] as String?;
 
     if (name?.isNotEmpty != true) {
       name = prompts.get('Name of model class');
     }
 
     var deps = [const MakerDependency('angel_migration', '^2.0.0')];
-    var rc = new ReCase(name);
+    var rc = new ReCase(name!);
 
     var migrationLib = new Library((migrationLib) {
       migrationLib
@@ -116,7 +116,7 @@ class MigrationCommand extends Command {
 
     // Save migration file
     var migrationDir = new Directory.fromUri(
-        Directory.current.uri.resolve(argResults['output-dir'] as String));
+        Directory.current.uri.resolve(argResults!['output-dir'] as String));
     var migrationFile =
         new File.fromUri(migrationDir.uri.resolve('${rc.snakeCase}.dart'));
     if (!await migrationFile.exists())

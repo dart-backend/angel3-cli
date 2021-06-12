@@ -12,13 +12,13 @@ class MakerDependency implements Comparable<MakerDependency> {
   int compareTo(MakerDependency other) => name.compareTo(other.name);
 }
 
-Future depend(Iterable<MakerDependency> deps) async {
+Future depend(Iterable<MakerDependency?> deps) async {
   var pubspec = await loadPubspec();
-  var missing = <MakerDependency>[];
+  var missing = <MakerDependency?>[];
 
   for (var dep in deps) {
     var isPresent = false;
-    if (dep.dev) {
+    if (dep!.dev) {
       isPresent = pubspec.devDependencies.containsKey(dep.name);
     } else {
       isPresent = pubspec.dependencies.containsKey(dep.name);
@@ -41,8 +41,8 @@ Future depend(Iterable<MakerDependency> deps) async {
     }
   }
 
-  var missingDeps = missing.where((d) => !d.dev).toList()..sort();
-  var missingDevDeps = missing.where((d) => d.dev).toList()..sort();
+  var missingDeps = missing.where((d) => !d!.dev).toList()..sort();
+  var missingDevDeps = missing.where((d) => d!.dev).toList()..sort();
   var totalCount = missingDeps.length + missingDevDeps.length;
 
   if (totalCount > 0) {
@@ -52,11 +52,11 @@ Future depend(Iterable<MakerDependency> deps) async {
     print(yellow.wrap(
         'Update your `pubspec.yaml` to add the following dependencies:\n'));
 
-    void printMissing(String type, Iterable<MakerDependency> deps) {
+    void printMissing(String type, Iterable<MakerDependency?> deps) {
       if (deps.isNotEmpty) {
         print(yellow.wrap('  $type:'));
         for (var dep in deps) {
-          print(yellow.wrap('    ${dep.name}: ${dep.version}'));
+          print(yellow.wrap('    ${dep!.name}: ${dep.version}'));
         }
       }
     }

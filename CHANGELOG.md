@@ -1,5 +1,7 @@
-# 3.0.0
+# 3.0.0-beta.1
 * Migrated to work with Dart SDK 2.12.x Non NNBD
+* Replaced `mustache4dart2` with `mustache_template`
+* Replaced `inflection2` with `inflection3`
 
 # 2.1.7+1
 * Fix a bug where new directories were not being created in

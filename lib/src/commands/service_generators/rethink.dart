@@ -8,7 +8,7 @@ class RethinkServiceGenerator extends ServiceGenerator {
 
   @override
   List<MakerDependency> get dependencies =>
-      const [MakerDependency('angel_rethink', '^2.0.0')];
+      const [MakerDependency('angel3_rethink', '^4.0.0')];
 
   @override
   bool get createsModel => false;
@@ -18,7 +18,7 @@ class RethinkServiceGenerator extends ServiceGenerator {
       LibraryBuilder library,
       MethodBuilder configureServer,
       BlockBuilder block,
-      String name,
+      String? name,
       String lower) {
     configureServer.requiredParameters.addAll([
       Parameter((b) => b
@@ -31,16 +31,16 @@ class RethinkServiceGenerator extends ServiceGenerator {
   }
 
   @override
-  void applyToLibrary(LibraryBuilder library, String name, String lower) {
+  void applyToLibrary(LibraryBuilder library, String? name, String lower) {
     library.directives.addAll([
-      'package:angel_rethink/angel_rethink.dart',
+      'package:angel3_rethink/angel3_rethink.dart',
       'package:rethinkdb_dart/rethinkdb_dart.dart'
     ].map((str) => Directive.import(str)));
   }
 
   @override
   Expression createInstance(LibraryBuilder library, MethodBuilder methodBuilder,
-      String name, String lower) {
+      String? name, String lower) {
     return refer('RethinkService').newInstance([
       refer('connection'),
       refer('r').property('table').call([literal(pluralize(lower))])

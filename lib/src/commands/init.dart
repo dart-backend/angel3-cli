@@ -19,7 +19,7 @@ class InitCommand extends Command {
 
   @override
   String get description =>
-      'Initializes a new Angel project in the current directory.';
+      'Initializes a new Angel3 project in the current directory.';
 
   InitCommand() {
     argParser
@@ -35,8 +35,8 @@ class InitCommand extends Command {
   @override
   void run() async {
     var projectDir =
-        Directory(argResults.rest.isEmpty ? '.' : argResults.rest[0]);
-    print('Creating new Angel project in ${projectDir.absolute.path}...');
+        Directory(argResults!.rest.isEmpty ? '.' : argResults!.rest[0]);
+    print('Creating new Angel3 project in ${projectDir.absolute.path}...');
     await _cloneRepo(projectDir);
     // await preBuild(projectDir);
     var secret = rs.randomAlphaNumeric(32);
@@ -49,8 +49,8 @@ class InitCommand extends Command {
     await _key.changeSecret(
         File.fromUri(projectDir.uri.resolve('config/production.yaml')), secret);
 
-    var name = argResults.wasParsed('project-name')
-        ? argResults['project-name'] as String
+    var name = argResults!.wasParsed('project-name')
+        ? (argResults!['project-name'] as String?)!
         : p.basenameWithoutExtension(
             projectDir.absolute.uri.normalizePath().toFilePath());
 
@@ -59,26 +59,26 @@ class InitCommand extends Command {
     await renamePubspec(projectDir, 'angel', name);
     await renameDartFiles(projectDir, 'angel', name);
 
-    if (argResults['pub-get'] != false && argResults['offline'] == false) {
+    if (argResults!['pub-get'] != false && argResults!['offline'] == false) {
       print('Now running pub get...');
       await _pubGet(projectDir);
     }
 
-    print(green.wrap('$checkmark Successfully initialized Angel project.'));
+    print(green.wrap('$checkmark Successfully initialized Angel3 project.'));
 
     stdout
       ..writeln()
       ..writeln(
-          'Congratulations! You are ready to start developing with Angel!')
+          'Congratulations! You are ready to start developing with Angel3!')
       ..write('To start the server (with ')
       ..write(cyan.wrap('hot-reloading'))
       ..write('), run ')
       ..write(magenta.wrap('`dart --observe bin/dev.dart`'))
       ..writeln(' in your terminal.')
       ..writeln()
-      ..writeln('Find more documentation about Angel:')
-      ..writeln('  * https://angel-dart.github.io')
-      ..writeln('  * https://github.com/angel-dart/angel/wiki')
+      ..writeln('Find more documentation about Angel3:')
+      ..writeln('  * https://angel3-docs.dukefirehaw.com')
+      ..writeln('  * https://github.com/dukefirehawk/angel/wiki')
       ..writeln(
           '  * https://www.youtube.com/playlist?list=PLl3P3tmiT-frEV50VdH_cIrA2YqIyHkkY')
       ..writeln('  * https://medium.com/the-angel-framework')
@@ -124,7 +124,7 @@ class InitCommand extends Command {
   }
 
   Future _cloneRepo(Directory projectDir) async {
-    Directory boilerplateDir;
+    late Directory boilerplateDir;
 
     try {
       if (await projectDir.exists()) {
@@ -144,11 +144,11 @@ class InitCommand extends Command {
       // var boilerplate = basicBoilerplate;
       print('Choose a project type before continuing:');
       var boilerplate = prompts.choose(
-          'Choose a project type before continuing', boilerplates);
+          'Choose a project type before continuing', boilerplates)!;
 
       // Ultimately, we want a clone of every boilerplate locally on the system.
       var boilerplateRootDir = Directory(p.join(angelDir.path, 'boilerplates'));
-      var boilerplateBasename = p.basenameWithoutExtension(boilerplate.url);
+      var boilerplateBasename = p.basenameWithoutExtension(boilerplate.url!);
       if (boilerplate.ref != null) boilerplateBasename += '.${boilerplate.ref}';
       boilerplateDir =
           Directory(p.join(boilerplateRootDir.path, boilerplateBasename));
@@ -158,7 +158,7 @@ class InitCommand extends Command {
 
       // If there is no clone existing, clone it.
       if (!await boilerplateDir.exists()) {
-        if (argResults['offline'] as bool) {
+        if (argResults!['offline'] as bool) {
           throw Exception(
               '--offline was selected, but the "${boilerplate.name}" boilerplate has not yet been downloaded.');
         }
@@ -176,7 +176,7 @@ class InitCommand extends Command {
               'clone',
               '--depth',
               '1',
-              boilerplate.url,
+              boilerplate.url!,
               boilerplateDir.absolute.path
             ],
             mode: ProcessStartMode.inheritStdio,
@@ -193,8 +193,8 @@ class InitCommand extends Command {
               '1',
               '--single-branch',
               '-b',
-              boilerplate.ref,
-              boilerplate.url,
+              boilerplate.ref!,
+              boilerplate.url!,
               boilerplateDir.absolute.path
             ],
             mode: ProcessStartMode.inheritStdio,
@@ -207,7 +207,7 @@ class InitCommand extends Command {
       }
 
       // Otherwise, pull from git.
-      else if (!(argResults['offline'] as bool)) {
+      else if (!(argResults!['offline'] as bool)) {
         print(darkGray.wrap('\$ git pull origin $branch'));
         var git = await Process.start('git', ['pull', 'origin', '$branch'],
             mode: ProcessStartMode.inheritStdio,
@@ -234,7 +234,7 @@ class InitCommand extends Command {
       await boilerplateDir.delete(recursive: true).catchError((_) => null);
 
       if (e is! String) {
-        print(red.wrap('$ballot Could not initialize Angel project.'));
+        print(red.wrap('$ballot Could not initialize Angel3 project.'));
       }
       rethrow;
     }
@@ -267,35 +267,27 @@ Future preBuild(Directory projectDir) async {
   if (buildCode != 0) throw Exception('Failed to pre-build resources.');
 }
 
-const RepoArchiveLocation = 'https://github.com/angel-dart';
 const RepoLocation = 'https://github.com/dukefirehawk';
 
 const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
   'GraphQL',
   'A starting point for GraphQL API servers.',
   '$RepoLocation/boilerplates.git',
-  ref: 'graphql-sdk-2.12.x',
+  ref: 'angel3-graphql',
 );
 
 const BoilerplateInfo ormBoilerplate = BoilerplateInfo(
   'ORM',
-  "A starting point for applications that use Angel's ORM.",
+  "A starting point for applications that use Angel3's ORM.",
   '$RepoLocation/boilerplates.git',
-  ref: 'orm-sdk-2.12.x',
+  ref: 'angel3-orm',
 );
 
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
     'Basic',
-    'Minimal starting point for Angel 2.x - A simple server with only a few additional packages.',
+    'Minimal starting point for Angel3 - A simple server with only a few additional packages.',
     '$RepoLocation/boilerplates.git',
-    ref: 'basic-sdk-2.12.x');
-
-const BoilerplateInfo legacyBoilerplate = BoilerplateInfo(
-  'Legacy',
-  'Minimal starting point for applications running Angel 1.1.x.',
-  '$RepoArchiveLocation/angel.git',
-  ref: '1.1.x',
-);
+    ref: 'angel3-basic');
 
 const BoilerplateInfo sharedBoilerplate = BoilerplateInfo(
     'Shared',
@@ -311,7 +303,6 @@ const BoilerplateInfo sharedOrmBoilerplate = BoilerplateInfo(
 
 const List<BoilerplateInfo> boilerplates = [
   basicBoilerplate,
-  //legacyBoilerplate,
   ormBoilerplate,
   graphQLBoilerplate,
   //sharedBoilerplate,
@@ -319,7 +310,7 @@ const List<BoilerplateInfo> boilerplates = [
 ];
 
 class BoilerplateInfo {
-  final String name, description, url, ref;
+  final String? name, description, url, ref;
   final bool needsPrebuild;
 
   const BoilerplateInfo(this.name, this.description, this.url,

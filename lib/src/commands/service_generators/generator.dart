@@ -25,20 +25,20 @@ class ServiceGenerator {
 
   bool get goesFirst => false;
 
-  void applyToLibrary(LibraryBuilder library, String name, String lower) {}
+  void applyToLibrary(LibraryBuilder library, String? name, String lower) {}
 
-  void beforeService(LibraryBuilder library, BlockBuilder builder, String name,
+  void beforeService(LibraryBuilder library, BlockBuilder builder, String? name,
       String lower) {}
 
   void applyToConfigureServer(
       LibraryBuilder library,
       MethodBuilder configureServer,
       BlockBuilder block,
-      String name,
+      String? name,
       String lower) {}
 
   Expression createInstance(LibraryBuilder library, MethodBuilder methodBuilder,
-          String name, String lower) =>
+          String? name, String lower) =>
       literal(null);
 
   @override

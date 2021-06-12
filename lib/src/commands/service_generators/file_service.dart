@@ -8,7 +8,7 @@ class FileServiceGenerator extends ServiceGenerator {
 
   @override
   List<MakerDependency> get dependencies =>
-      const [MakerDependency('angel_file_service', '^2.0.0')];
+      const [MakerDependency('angel3_file_service', '^4.0.0')];
 
   @override
   bool get goesFirst => true;
@@ -18,26 +18,25 @@ class FileServiceGenerator extends ServiceGenerator {
       LibraryBuilder library,
       MethodBuilder configureServer,
       BlockBuilder block,
-      String name,
+      String? name,
       String lower) {
-    configureServer.requiredParameters.add(new Parameter((b) => b
+    configureServer.requiredParameters.add(Parameter((b) => b
       ..name = 'dbDirectory'
       ..type = refer('Directory')));
   }
 
   @override
-  void applyToLibrary(LibraryBuilder library, String name, String lower) {
+  void applyToLibrary(LibraryBuilder library, String? name, String lower) {
     library.directives.addAll([
-      new Directive.import(
-          'package:angel_file_service/angel_file_service.dart'),
+      Directive.import('package:angel3_file_service/angel3_file_service.dart'),
     ]);
   }
 
   @override
   Expression createInstance(LibraryBuilder library, MethodBuilder methodBuilder,
-      String name, String lower) {
+      String? name, String lower) {
     library.directives.addAll([
-      new Directive.import('package:file/file.dart'),
+      Directive.import('package:file/file.dart'),
     ]);
     return refer('JsonFileService').newInstance([
       refer('dbDirectory')

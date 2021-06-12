@@ -28,7 +28,7 @@ server {
   root ${p.absolute(webPath)}; # Set to your static files directory
   
   location / {
-    try_files \$uri @proxy; # Try to serve static files; fallback to proxied Angel server
+    try_files \$uri @proxy; # Try to serve static files; fallback to proxied Angel3 server
   }
   
   location @proxy {
@@ -39,10 +39,10 @@ server {
     '''
         .trim();
 
-    if (!argResults.wasParsed('out')) {
+    if (!argResults!.wasParsed('out')) {
       print(nginxText);
     } else {
-      var file = File(argResults['out'] as String);
+      var file = File(argResults!['out'] as String);
       await file.create(recursive: true);
       await file.writeAsString(nginxText);
       print(green.wrap(

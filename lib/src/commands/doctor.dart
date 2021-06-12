@@ -10,7 +10,7 @@ class DoctorCommand extends Command {
 
   @override
   String get description =>
-      'Ensures that the current system is capable of running Angel.';
+      'Ensures that the current system is capable of running Angel3.';
 
   @override
   Future run() async {

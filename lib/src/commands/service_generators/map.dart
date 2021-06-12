@@ -9,7 +9,7 @@ class MapServiceGenerator extends ServiceGenerator {
 
   @override
   Expression createInstance(LibraryBuilder library, MethodBuilder methodBuilder,
-      String name, String lower) {
+      String? name, String lower) {
     return refer('MapService').newInstance([]);
   }
 }

@@ -8,7 +8,7 @@ class MongoServiceGenerator extends ServiceGenerator {
 
   @override
   List<MakerDependency> get dependencies =>
-      const [MakerDependency('angel_mongo', '^2.0.0')];
+      const [MakerDependency('angel3_mongo', '^4.0.0')];
 
   @override
   bool get createsModel => false;
@@ -18,7 +18,7 @@ class MongoServiceGenerator extends ServiceGenerator {
       LibraryBuilder library,
       MethodBuilder configureServer,
       BlockBuilder block,
-      String name,
+      String? name,
       String lower) {
     configureServer.requiredParameters.add(Parameter((b) => b
       ..name = 'db'
@@ -26,16 +26,16 @@ class MongoServiceGenerator extends ServiceGenerator {
   }
 
   @override
-  void applyToLibrary(LibraryBuilder library, String name, String lower) {
+  void applyToLibrary(LibraryBuilder library, String? name, String lower) {
     library.directives.addAll([
-      Directive.import('package:angel_mongo/angel_mongo.dart'),
+      Directive.import('package:angel3_mongo/angel3_mongo.dart'),
       Directive.import('package:mongo_dart/mongo_dart.dart'),
     ]);
   }
 
   @override
   Expression createInstance(LibraryBuilder library, MethodBuilder methodBuilder,
-      String name, String lower) {
+      String? name, String lower) {
     return refer('MongoService').newInstance([
       refer('db').property('collection').call([literal(pluralize(lower))])
     ]);

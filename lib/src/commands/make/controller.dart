@@ -31,8 +31,8 @@ class ControllerCommand extends Command {
 
   @override
   Future run() async {
-    String name;
-    if (argResults.wasParsed('name')) name = argResults['name'] as String;
+    String? name;
+    if (argResults!.wasParsed('name')) name = argResults!['name'] as String?;
 
     if (name?.isNotEmpty != true) {
       name = prompts.get('Name of controller class');
@@ -44,9 +44,9 @@ class ControllerCommand extends Command {
 
     //${pubspec.name}.src.models.${rc.snakeCase}
 
-    var rc = ReCase(name);
+    var rc = ReCase(name!);
     var controllerLib = Library((controllerLib) {
-      if (argResults['websocket'] as bool) {
+      if (argResults!['websocket'] as bool) {
         deps.add(const MakerDependency('angel_websocket', '^2.0.0'));
         controllerLib.directives
             .add(Directive.import('package:angel_websocket/server.dart'));
@@ -58,11 +58,11 @@ class ControllerCommand extends Command {
       controllerLib.body.add(Class((clazz) {
         clazz
           ..name = '${rc.pascalCase}Controller'
-          ..extend = refer(argResults['websocket'] as bool
+          ..extend = refer(argResults!['websocket'] as bool
               ? 'WebSocketController'
               : 'Controller');
 
-        if (argResults['websocket'] as bool) {
+        if (argResults!['websocket'] as bool) {
           // XController(AngelWebSocket ws) : super(ws);
           clazz.constructors.add(Constructor((b) {
             b
@@ -106,7 +106,7 @@ class ControllerCommand extends Command {
     });
 
     var outputDir = Directory.fromUri(
-        Directory.current.uri.resolve(argResults['output-dir'] as String));
+        Directory.current.uri.resolve(argResults!['output-dir'] as String));
     var controllerFile =
         File.fromUri(outputDir.uri.resolve('${rc.snakeCase}.dart'));
     if (!await controllerFile.exists()) {

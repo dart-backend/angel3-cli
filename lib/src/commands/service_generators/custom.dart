@@ -11,7 +11,7 @@ class CustomServiceGenerator extends ServiceGenerator {
   const CustomServiceGenerator() : super('Custom');
 
   @override
-  void applyToLibrary(LibraryBuilder library, String name, String lower) {
+  void applyToLibrary(LibraryBuilder library, String? name, String lower) {
     library.body.add(Class((clazz) {
       clazz
         ..name = '${name}Service'
@@ -21,7 +21,7 @@ class CustomServiceGenerator extends ServiceGenerator {
 
   @override
   Expression createInstance(LibraryBuilder library, MethodBuilder methodBuilder,
-      String name, String lower) {
+      String? name, String lower) {
     return refer('${name}Service').newInstance([]);
   }
 }

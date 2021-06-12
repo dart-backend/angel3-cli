@@ -27,8 +27,8 @@ class PluginCommand extends Command {
   @override
   Future run() async {
     var pubspec = await loadPubspec();
-    String name;
-    if (argResults.wasParsed('name')) name = argResults['name'] as String;
+    String? name;
+    if (argResults!.wasParsed('name')) name = argResults!['name'] as String?;
 
     if (name?.isNotEmpty != true) {
       name = prompts.get('Name of plug-in class');
@@ -38,9 +38,9 @@ class PluginCommand extends Command {
       const MakerDependency('angel_framework', '^2.0.0')
     ];
 
-    var rc = ReCase(name);
+    var rc = ReCase(name!);
     final pluginDir = Directory.fromUri(
-        Directory.current.uri.resolve(argResults['output-dir'] as String));
+        Directory.current.uri.resolve(argResults!['output-dir'] as String));
     final pluginFile =
         File.fromUri(pluginDir.uri.resolve('${rc.snakeCase}.dart'));
     if (!await pluginFile.exists()) await pluginFile.create(recursive: true);
