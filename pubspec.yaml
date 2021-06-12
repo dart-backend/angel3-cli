@@ -1,7 +1,7 @@
 name: angel3_cli
-version: 3.0.0-beta.1
+version: 3.0.0-beta.2
 description: Command-line tools for the Angel framework, including scaffolding.
-homepage: https://github.com/dukefirehawk/angel3_cli
+homepage: https://github.com/dukefirehawk/angel3-cli
 environment: 
   sdk: '>=2.12.0 <3.0.0'
 dependencies: 

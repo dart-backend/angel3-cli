@@ -1,3 +1,5 @@
+# 3.0.0-beta.2
+* Updated README
 # 3.0.0-beta.1
 * Migrated to work with Dart SDK 2.12.x Non NNBD
 * Replaced `mustache4dart2` with `mustache_template`

@@ -1,8 +1,8 @@
 # angel3_cli
 
-![Screenshot of Terminal](screenshots/screenshot.png)
+[![Screenshot of Terminal](screenshots/screenshot.png)](https://github.com/dukefirehawk/angel3-cli)
 
-[![version](https://img.shields.io/badge/pub-v3.0.-brightgreen)](https://pub.dartlang.org/angel3-cli)
+[![version](https://img.shields.io/badge/pub-v3.0.0-brightgreen)](https://pub.dartlang.org/angel3_cli)
 [![Null Safety](https://img.shields.io/badge/null-safety-brightgreen)](https://dart.dev/null-safety)
 [![Gitter](https://img.shields.io/gitter/room/angel_dart/discussion)](https://gitter.im/angel_dart/discussion)
 
