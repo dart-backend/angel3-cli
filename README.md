@@ -1,4 +1,4 @@
-# angel3_cli
+# Angel3 CLI
 
 [![Screenshot of Terminal](screenshots/screenshot.png)](https://github.com/dukefirehawk/angel3-cli)
 
