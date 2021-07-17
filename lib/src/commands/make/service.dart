@@ -31,8 +31,8 @@ class ServiceCommand extends Command {
   }
 
   @override
-  run() async {
-    var pubspec = await loadPubspec();
+  void run() async {
+    await loadPubspec();
     String? name;
     if (argResults!.wasParsed('name')) name = argResults!['name'] as String?;
 
@@ -40,7 +40,7 @@ class ServiceCommand extends Command {
       name = prompts.get('Name of service');
     }
 
-    List<MakerDependency> deps = [
+    var deps = <MakerDependency>[
       const MakerDependency('angel_framework', '^2.0.0')
     ];
 
@@ -122,7 +122,7 @@ class ServiceCommand extends Command {
     final outputDir = Directory.fromUri(
         Directory.current.uri.resolve(argResults!['output-dir'] as String));
     final serviceFile =
-        File.fromUri(outputDir.uri.resolve("${rc.snakeCase}.dart"));
+        File.fromUri(outputDir.uri.resolve('${rc.snakeCase}.dart'));
     if (!await serviceFile.exists()) await serviceFile.create(recursive: true);
     await serviceFile.writeAsString(
         DartFormatter().format(serviceLib.accept(DartEmitter()).toString()));

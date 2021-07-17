@@ -36,13 +36,13 @@ class MigrationCommand extends Command {
     }
 
     var deps = [const MakerDependency('angel_migration', '^2.0.0')];
-    var rc = new ReCase(name!);
+    var rc = ReCase(name!);
 
-    var migrationLib = new Library((migrationLib) {
+    var migrationLib = Library((migrationLib) {
       migrationLib
-        ..directives.add(new Directive.import(
+        ..directives.add(Directive.import(
             'package:angel_migration.dart/angel_migration.dart'))
-        ..body.add(new Class((migrationClazz) {
+        ..body.add(Class((migrationClazz) {
           migrationClazz
             ..name = '${rc.pascalCase}Migration'
             ..extend = refer('Migration');
@@ -50,21 +50,21 @@ class MigrationCommand extends Command {
           var tableName = pluralize(rc.snakeCase);
 
           // up()
-          migrationClazz.methods.add(new Method((up) {
+          migrationClazz.methods.add(Method((up) {
             up
               ..name = 'up'
               ..returns = refer('void')
               ..annotations.add(refer('override'))
-              ..requiredParameters.add(new Parameter((b) => b
+              ..requiredParameters.add(Parameter((b) => b
                 ..name = 'schema'
                 ..type = refer('Schema')))
-              ..body = new Block((block) {
+              ..body = Block((block) {
                 // (table) { ... }
-                var callback = new Method((callback) {
+                var callback = Method((callback) {
                   callback
                     ..requiredParameters
-                        .add(new Parameter((b) => b..name = 'table'))
-                    ..body = new Block((block) {
+                        .add(Parameter((b) => b..name = 'table'))
+                    ..body = Block((block) {
                       var table = refer('table');
 
                       block.addExpression(
@@ -95,15 +95,15 @@ class MigrationCommand extends Command {
           }));
 
           // down()
-          migrationClazz.methods.add(new Method((down) {
+          migrationClazz.methods.add(Method((down) {
             down
               ..name = 'down'
               ..returns = refer('void')
               ..annotations.add(refer('override'))
-              ..requiredParameters.add(new Parameter((b) => b
+              ..requiredParameters.add(Parameter((b) => b
                 ..name = 'schema'
                 ..type = refer('Schema')))
-              ..body = new Block((block) {
+              ..body = Block((block) {
                 block.addExpression(
                   refer('schema').property('drop').call([
                     literal(tableName),
@@ -115,15 +115,16 @@ class MigrationCommand extends Command {
     });
 
     // Save migration file
-    var migrationDir = new Directory.fromUri(
+    var migrationDir = Directory.fromUri(
         Directory.current.uri.resolve(argResults!['output-dir'] as String));
     var migrationFile =
-        new File.fromUri(migrationDir.uri.resolve('${rc.snakeCase}.dart'));
-    if (!await migrationFile.exists())
+        File.fromUri(migrationDir.uri.resolve('${rc.snakeCase}.dart'));
+    if (!await migrationFile.exists()) {
       await migrationFile.create(recursive: true);
+    }
 
-    await migrationFile.writeAsString(new DartFormatter()
-        .format(migrationLib.accept(new DartEmitter()).toString()));
+    await migrationFile.writeAsString(
+        DartFormatter().format(migrationLib.accept(DartEmitter()).toString()));
 
     print(green.wrap(
         '$checkmark Created migration file "${migrationFile.absolute.path}".'));

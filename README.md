@@ -8,25 +8,31 @@
 
 [![License](https://img.shields.io/github/license/dukefirehawk/angel)](https://github.com/dukefirehawk/angel3-cli/blob/master/LICENSE)
 
+Command-line tools for the Angel3 framework that provides the following functionalities:
 
-Command-line tools for the Angel3 framework.
-Includes functionality such as:
 * Project scaffolding
 * Generating service models, plugins, tests and more
 * Renaming projects
 * Much more...
 
-* To install:
+## Installation
+
+Release version:
 
 ```bash
-$ pub global activate angel3_cli
+dart pub global activate angel3_cli
 ```
 
-* Install development version
-`dart pub global activate --source git https://github.com/dukefirehawk/angel3-cli`
-
-And then, for information on each command:
+Development version:
 
 ```bash
-$ angel3 help
+dart pub global activate --source git https://github.com/dukefirehawk/angel3-cli
+```
+
+## Help
+
+For information on the available options:
+
+```bash
+angel3 help
 ```

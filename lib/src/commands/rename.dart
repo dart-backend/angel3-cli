@@ -88,6 +88,7 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
   if (!await dir.exists()) return;
 
   // Try to replace MongoDB URL
+  // Replace name in config directory
   var configGlob = Glob('config/**/*.yaml');
 
   try {
@@ -99,6 +100,23 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
           var contents = (yamlFile as File).readAsStringSync();
           contents = contents.replaceAll(oldName, newName);
           (yamlFile as File).writeAsStringSync(contents);
+        }
+      }
+    }
+  } catch (_) {}
+
+  // Replace name in bin directory
+  var binGlob = Glob('bin/**/*.dart');
+
+  try {
+    await for (var dartFile in binGlob.list(root: dir.absolute.path)) {
+      if (dartFile is File) {
+        print(
+            'Replacing occurrences of "$oldName" with "$newName" in file "${dartFile.absolute.path}"...');
+        if (dartFile is File) {
+          var contents = (dartFile as File).readAsStringSync();
+          contents = contents.replaceAll(oldName, newName);
+          (dartFile as File).writeAsStringSync(contents);
         }
       }
     }

@@ -12,11 +12,11 @@ final String DOCTOR = 'doctor';
 void main(List<String> args) async {
   var runner = CommandRunner(
       'angel',
-      asciiArt.trim() +
+      asciiArt +
           '\n\n' +
-          'Command-line tools for the Angel framework.' +
+          'Command-line tools for the Angel3 framework.' +
           '\n\n' +
-          'https://angel-dart.github.io');
+          'https://angel3-framework.web.app');
 
   runner.argParser
       .addFlag('verbose', help: 'Print verbose output.', negatable: false);
@@ -46,7 +46,34 @@ void main(List<String> args) async {
   });
 }
 
+const String asciiArt2 = '''
+
+    ___    _   ________________   _____
+   /   |  / | / / ____/ ____/ /  |__  /
+  / /| | /  |/ / / __/ __/ / /    /_ < 
+ / ___ |/ /|  / /_/ / /___/ /______/ / 
+/_/  |_/_/ |_/\\____/_____/_____/____/ 
+                                                                                                                       
+''';
+
 const String asciiArt = '''
+
+     _    _   _  ____ _____ _     _____ 
+    / \\  | \\ | |/ ___| ____| |   |___ / 
+   / _ \\ |  \\| | |  _|  _| | |     |_ \\ 
+  / ___ \\| |\\  | |_| | |___| |___ ___) |
+ /_/   \\_\\_| \\_|\\____|_____|_____|____/                                                                                 
+''';
+
+const String asciiArt3 = '''
+                                             
+     \      \  |   ___|  ____|  |     ___ /  
+    _ \      \ |  |      __|    |       _ \  
+   ___ \   |\  |  |   |  |      |        ) | 
+ _/    _\ _| \_| \____| _____| _____| ____/  
+                                             
+''';
+const String asciiArtOld = '''
 ____________   ________________________ 
 ___    |__  | / /_  ____/__  ____/__  / 
 __  /| |_   |/ /_  / __ __  __/  __  /  

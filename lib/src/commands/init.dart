@@ -34,6 +34,11 @@ class InitCommand extends Command {
 
   @override
   void run() async {
+    if (argResults == null) {
+      print('Invalid arguements');
+      return;
+    }
+
     var projectDir =
         Directory(argResults!.rest.isEmpty ? '.' : argResults!.rest[0]);
     print('Creating new Angel3 project in ${projectDir.absolute.path}...');
@@ -50,7 +55,7 @@ class InitCommand extends Command {
         File.fromUri(projectDir.uri.resolve('config/production.yaml')), secret);
 
     var name = argResults!.wasParsed('project-name')
-        ? (argResults!['project-name'] as String?)!
+        ? (argResults!['project-name'] as String)
         : p.basenameWithoutExtension(
             projectDir.absolute.uri.normalizePath().toFilePath());
 
@@ -58,6 +63,7 @@ class InitCommand extends Command {
     print('Renaming project from "angel" to "$name"...');
     await renamePubspec(projectDir, 'angel', name);
     await renameDartFiles(projectDir, 'angel', name);
+    // Renaming executable files
 
     if (argResults!['pub-get'] != false && argResults!['offline'] == false) {
       print('Now running pub get...');
@@ -77,8 +83,8 @@ class InitCommand extends Command {
       ..writeln(' in your terminal.')
       ..writeln()
       ..writeln('Find more documentation about Angel3:')
+      ..writeln('  * https://angel3-framework.web.app')
       ..writeln('  * https://angel3-docs.dukefirehaw.com')
-      ..writeln('  * https://github.com/dukefirehawk/angel/wiki')
       ..writeln(
           '  * https://www.youtube.com/playlist?list=PLl3P3tmiT-frEV50VdH_cIrA2YqIyHkkY')
       ..writeln('  * https://medium.com/the-angel-framework')
@@ -144,17 +150,23 @@ class InitCommand extends Command {
       // var boilerplate = basicBoilerplate;
       print('Choose a project type before continuing:');
       var boilerplate = prompts.choose(
-          'Choose a project type before continuing', boilerplates)!;
+              'Choose a project type before continuing', boilerplates) ??
+          basicBoilerplate;
 
       // Ultimately, we want a clone of every boilerplate locally on the system.
       var boilerplateRootDir = Directory(p.join(angelDir.path, 'boilerplates'));
-      var boilerplateBasename = p.basenameWithoutExtension(boilerplate.url!);
-      if (boilerplate.ref != null) boilerplateBasename += '.${boilerplate.ref}';
+      var boilerplateBasename = p.basenameWithoutExtension(boilerplate.url);
+      if (boilerplate.ref != '') {
+        boilerplateBasename += '.${boilerplate.ref}';
+      }
       boilerplateDir =
           Directory(p.join(boilerplateRootDir.path, boilerplateBasename));
       await boilerplateRootDir.create(recursive: true);
 
-      var branch = boilerplate.ref ?? 'master';
+      var branch = boilerplate.ref;
+      if (branch == '') {
+        branch = 'master';
+      }
 
       // If there is no clone existing, clone it.
       if (!await boilerplateDir.exists()) {
@@ -167,7 +179,7 @@ class InitCommand extends Command {
             'Cloning "${boilerplate.name}" boilerplate from "${boilerplate.url}"...');
         Process git;
 
-        if (boilerplate.ref == null) {
+        if (boilerplate.ref == '') {
           print(darkGray.wrap(
               '\$ git clone --depth 1 ${boilerplate.url} ${boilerplateDir.absolute.path}'));
           git = await Process.start(
@@ -176,7 +188,7 @@ class InitCommand extends Command {
               'clone',
               '--depth',
               '1',
-              boilerplate.url!,
+              boilerplate.url,
               boilerplateDir.absolute.path
             ],
             mode: ProcessStartMode.inheritStdio,
@@ -193,8 +205,8 @@ class InitCommand extends Command {
               '1',
               '--single-branch',
               '-b',
-              boilerplate.ref!,
-              boilerplate.url!,
+              boilerplate.ref,
+              boilerplate.url,
               boilerplateDir.absolute.path
             ],
             mode: ProcessStartMode.inheritStdio,
@@ -231,7 +243,9 @@ class InitCommand extends Command {
       var gitDir = Directory.fromUri(projectDir.uri.resolve('.git'));
       if (await gitDir.exists()) await gitDir.delete(recursive: true);
     } catch (e) {
-      await boilerplateDir.delete(recursive: true).catchError((_) => null);
+      await boilerplateDir.delete(recursive: true).catchError((e) {
+        print('Got error: ${e.error}');
+      });
 
       if (e is! String) {
         print(red.wrap('$ballot Could not initialize Angel3 project.'));
@@ -271,21 +285,21 @@ const RepoLocation = 'https://github.com/dukefirehawk';
 
 const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
   'GraphQL',
-  'A starting point for GraphQL API servers.',
+  'A starter application with GraphQL support.',
   '$RepoLocation/boilerplates.git',
   ref: 'angel3-graphql',
 );
 
 const BoilerplateInfo ormBoilerplate = BoilerplateInfo(
   'ORM',
-  "A starting point for applications that use Angel3's ORM.",
+  'A starter application with ORM support.',
   '$RepoLocation/boilerplates.git',
   ref: 'angel3-orm',
 );
 
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
     'Basic',
-    'Minimal starting point for Angel3 - A simple server with only a few additional packages.',
+    'A basic starter application with minimal packages.',
     '$RepoLocation/boilerplates.git',
     ref: 'angel3-basic');
 
@@ -310,11 +324,12 @@ const List<BoilerplateInfo> boilerplates = [
 ];
 
 class BoilerplateInfo {
-  final String? name, description, url, ref;
+  final String name, description, url;
+  final String ref;
   final bool needsPrebuild;
 
   const BoilerplateInfo(this.name, this.description, this.url,
-      {this.ref, this.needsPrebuild = false});
+      {this.ref = '', this.needsPrebuild = false});
 
   @override
   String toString() => '$name ($description)';

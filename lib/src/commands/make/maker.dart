@@ -6,7 +6,7 @@ class MakerDependency implements Comparable<MakerDependency> {
   final String name, version;
   final bool dev;
 
-  const MakerDependency(this.name, this.version, {this.dev: false});
+  const MakerDependency(this.name, this.version, {this.dev = false});
 
   @override
   int compareTo(MakerDependency other) => name.compareTo(other.name);
