@@ -4,6 +4,7 @@
 
 * Fixed NNBD issues
 * Updated to use `angel3` packages
+* Fixed incorrect import for new project
 
 ## 3.0.0-beta.2
 

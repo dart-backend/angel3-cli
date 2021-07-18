@@ -149,6 +149,7 @@ class InitCommand extends Command {
 
       // var boilerplate = basicBoilerplate;
       print('Choose a project type before continuing:');
+
       var boilerplate = prompts.choose(
               'Choose a project type before continuing', boilerplates) ??
           basicBoilerplate;

@@ -89,9 +89,8 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
 
   // Try to replace MongoDB URL
   // Replace name in config directory
-  var configGlob = Glob('config/**/*.yaml');
-
   try {
+    var configGlob = Glob('config/**/*.yaml');
     await for (var yamlFile in configGlob.list(root: dir.absolute.path)) {
       if (yamlFile is File) {
         print(
@@ -105,23 +104,6 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
     }
   } catch (_) {}
 
-  // Replace name in bin directory
-  var binGlob = Glob('bin/**/*.dart');
-
-  try {
-    await for (var dartFile in binGlob.list(root: dir.absolute.path)) {
-      if (dartFile is File) {
-        print(
-            'Replacing occurrences of "$oldName" with "$newName" in file "${dartFile.absolute.path}"...');
-        if (dartFile is File) {
-          var contents = (dartFile as File).readAsStringSync();
-          contents = contents.replaceAll(oldName, newName);
-          (dartFile as File).writeAsStringSync(contents);
-        }
-      }
-    }
-  } catch (_) {}
-
   var entry = File.fromUri(dir.uri.resolve('lib/$oldName.dart'));
 
   if (await entry.exists()) {
@@ -129,12 +111,58 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
     print('Renaming library file `${entry.absolute.path}`...');
   }
 
+  // Replace package:oldName/oldName.dart with package:newName/newName.dart
+  // Replace package:oldName/ with package:newName/
+  String updateImport(String content, String oldName, String newName) {
+    if (!content.startsWith('import')) {
+      return content;
+    }
+
+    if (content.contains('package:$oldName/$oldName.dart')) {
+      return content.replaceFirst(
+          'package:$oldName/$oldName.dart', 'package:$newName/$newName.dart');
+    }
+
+    if (content.contains('package:$oldName/')) {
+      return content.replaceFirst('package:$oldName/', 'package:$newName/');
+    }
+
+    return content;
+  }
+
+  // Replace mustache {{oldName}} with newName
+  String updateMustacheBinding(String content, String oldName, String newName) {
+    if (content.contains('{{$oldName}}')) {
+      return content.replaceAll('{{$oldName}}', '$newName');
+    }
+
+    return content;
+  }
+
+  var fmt = DartFormatter();
+  await for (FileSystemEntity file in dir.list(recursive: true)) {
+    if (file is File && file.path.endsWith('.dart')) {
+      var lineList = await file.readAsLines();
+
+      if (oldName.isNotEmpty && newName.isNotEmpty) {
+        var contents = lineList.fold<String>('', (prev, cur) {
+          var updatedCur = updateImport(cur, oldName, newName);
+          updatedCur = updateMustacheBinding(updatedCur, oldName, newName);
+          return prev + '\n' + updatedCur;
+        });
+        await file.writeAsString(fmt.format(contents));
+
+        print('Updated file `${file.absolute.path}`.');
+      }
+    }
+  }
+
+  /* Deprecated, Not working
   var fmt = DartFormatter();
   await for (FileSystemEntity file in dir.list(recursive: true)) {
     if (file is File && file.path.endsWith('.dart')) {
       var contents = await file.readAsString();
 
-      // TODO: Issue to be fixed: parseCompilationUnit uses Hubbub library which uses discontinued Google front_end library
       // front_end package. Temporarily commeted out
       //var ast = parseCompilationUnit(contents);
       var visitor = RenamingVisitor(oldName, newName);
@@ -144,9 +172,9 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
         visitor.replace.forEach((range, replacement) {
           if (range.first is int) {
             contents = contents.replaceRange(
-                range.first as int, range.last as int?, replacement!);
+                range.first as int, range.last as int?, replacement);
           } else if (range.first is String) {
-            contents = contents.replaceAll(range.first as String, replacement!);
+            contents = contents.replaceAll(range.first as String, replacement);
           }
         });
 
@@ -155,20 +183,21 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
       }
     }
   }
+  */
 }
 
 class RenamingVisitor extends RecursiveAstVisitor {
   final String oldName, newName;
-  final Map<List, String?> replace = {};
+  final Map<List, String> replace = {};
 
   RenamingVisitor(this.oldName, this.newName) {
     replace[['{{$oldName}}']] = newName;
   }
 
-  String? updateUri(String? uri) {
+  String updateUri(String uri) {
     if (uri == 'package:$oldName/$oldName.dart') {
       return 'package:$newName/$newName.dart';
-    } else if (uri!.startsWith('package:$oldName/')) {
+    } else if (uri.startsWith('package:$oldName/')) {
       return 'package:$newName/' + uri.replaceFirst('package:$oldName/', '');
     } else {
       return uri;
@@ -177,14 +206,21 @@ class RenamingVisitor extends RecursiveAstVisitor {
 
   @override
   void visitExportDirective(ExportDirective ctx) {
-    var uri = ctx.uri.stringValue, updated = updateUri(uri);
-    if (uri != updated) replace[[uri]] = updated;
+    var uri = ctx.uri.stringValue;
+    if (uri != null) {
+      var updated = updateUri(uri);
+      if (uri != updated) replace[[uri]] = updated;
+    }
   }
 
   @override
   void visitImportDirective(ImportDirective ctx) {
-    var uri = ctx.uri.stringValue, updated = updateUri(uri);
-    if (uri != updated) replace[[uri]] = updated;
+    var uri = ctx.uri.stringValue;
+
+    if (uri != null) {
+      var updated = updateUri(uri);
+      if (uri != updated) replace[[uri]] = updated;
+    }
   }
 
   @override
