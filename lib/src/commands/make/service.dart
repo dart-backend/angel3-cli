@@ -41,7 +41,7 @@ class ServiceCommand extends Command {
     }
 
     var deps = <MakerDependency>[
-      const MakerDependency('angel_framework', '^2.0.0')
+      const MakerDependency('angel3_framework', '^4.1.0')
     ];
 
     // '${pubspec.name}.src.services.${rc.snakeCase}'
@@ -64,10 +64,10 @@ class ServiceCommand extends Command {
       if (generator.goesFirst) {
         generator.applyToLibrary(serviceLib, name, rc.snakeCase);
         serviceLib.directives.add(
-            Directive.import('package:angel_framework/angel_framework.dart'));
+            Directive.import('package:angel3_framework/angel3_framework.dart'));
       } else {
         serviceLib.directives.add(
-            Directive.import('package:angel_framework/angel_framework.dart'));
+            Directive.import('package:angel3_framework/angel3_framework.dart'));
         generator.applyToLibrary(serviceLib, name, rc.snakeCase);
       }
 

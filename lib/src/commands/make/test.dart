@@ -38,9 +38,9 @@ class TestCommand extends Command {
     }
 
     var deps = <MakerDependency>[
-      const MakerDependency('angel_framework', '^2.0.0'),
-      const MakerDependency('angel_test', '^2.0.0', dev: true),
-      const MakerDependency('test', '^1.0.0', dev: true),
+      const MakerDependency('angel3_framework', '^4.1.0'),
+      const MakerDependency('angel3_test', '^4.0.0', dev: true),
+      const MakerDependency('test', '^1.17.0', dev: true),
     ];
 
     var rc = ReCase(name!);
@@ -85,15 +85,15 @@ class TestCommand extends Command {
     return '''
 import 'dart:io';
 import 'package:${pubspec.name}/${pubspec.name}.dart' as ${pubspec.name};
-import 'package:angel_framework/angel_framework.dart';
-import 'package:angel_test/angel_test.dart';
+import 'package:angel3_framework/angel3_framework.dart';
+import 'package:angel3_test/angel3_test.dart';
 import 'package:test/test.dart';
 
 main() async {
   TestClient client;
 
   setUp(() async {
-    var app = new Angel();
+    var app = Angel();
     await app.configure(${pubspec.name}.configureServer);
     client = await connectTo(app);
   });

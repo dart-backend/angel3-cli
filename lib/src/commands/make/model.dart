@@ -41,7 +41,7 @@ class ModelCommand extends Command {
     }
 
     var deps = <MakerDependency>[
-      const MakerDependency('angel_model', '^1.0.0'),
+      const MakerDependency('angel3_model', '^3.0.0'),
     ];
 
     var rc = ReCase(name!);
@@ -49,7 +49,7 @@ class ModelCommand extends Command {
     var modelLib = Library((modelLib) {
       if (argResults!['orm'] as bool && argResults!['migration'] as bool) {
         modelLib.directives.addAll([
-          Directive.import('package:angel_migration/angel_migration.dart'),
+          Directive.import('package:angel3_migration/angel3_migration.dart'),
         ]);
       }
 
@@ -59,10 +59,10 @@ class ModelCommand extends Command {
 
       if (needsSerialize) {
         modelLib.directives.add(
-            Directive.import('package:angel_serialize/angel_serialize.dart'));
-        deps.add(const MakerDependency('angel_serialize', '^2.0.0'));
-        deps.add(const MakerDependency('angel_serialize_generator', '^2.0.0'));
-        deps.add(const MakerDependency('build_runner', '^1.0.0'));
+            Directive.import('package:angel3_serialize/angel3_serialize.dart'));
+        deps.add(const MakerDependency('angel3_serialize', '^4.0.0'));
+        deps.add(const MakerDependency('angel3_serialize_generator', '^4.0.0'));
+        deps.add(const MakerDependency('build_runner', '^2.0.0'));
       }
 
       // else {
@@ -73,9 +73,9 @@ class ModelCommand extends Command {
 
       if (argResults!['orm'] as bool) {
         modelLib.directives.addAll([
-          Directive.import('package:angel_orm/angel_orm.dart'),
+          Directive.import('package:angel3_orm/angel3_orm.dart'),
         ]);
-        deps.add(const MakerDependency('angel_orm', '^2.0.0'));
+        deps.add(const MakerDependency('angel3_orm', '^4.0.0'));
       }
 
       modelLib.body.addAll([

@@ -11,7 +11,7 @@ final String DOCTOR = 'doctor';
 
 void main(List<String> args) async {
   var runner = CommandRunner(
-      'angel',
+      'angel3',
       asciiArt +
           '\n\n' +
           'Command-line tools for the Angel3 framework.' +

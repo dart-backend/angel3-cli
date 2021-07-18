@@ -39,7 +39,7 @@ class ControllerCommand extends Command {
     }
 
     var deps = <MakerDependency>[
-      const MakerDependency('angel_framework', '^2.0.0')
+      const MakerDependency('angel3_framework', '^4.1.0')
     ];
 
     //${pubspec.name}.src.models.${rc.snakeCase}
@@ -47,12 +47,12 @@ class ControllerCommand extends Command {
     var rc = ReCase(name!);
     var controllerLib = Library((controllerLib) {
       if (argResults!['websocket'] as bool) {
-        deps.add(const MakerDependency('angel_websocket', '^2.0.0'));
+        deps.add(const MakerDependency('angel3_websocket', '^4.0.0'));
         controllerLib.directives
-            .add(Directive.import('package:angel_websocket/server.dart'));
+            .add(Directive.import('package:angel3_websocket/server.dart'));
       } else {
         controllerLib.directives.add(
-            Directive.import('package:angel_framework/angel_framework.dart'));
+            Directive.import('package:angel3_framework/angel3_framework.dart'));
       }
 
       controllerLib.body.add(Class((clazz) {

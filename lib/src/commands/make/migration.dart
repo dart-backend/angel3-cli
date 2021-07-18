@@ -35,13 +35,13 @@ class MigrationCommand extends Command {
       name = prompts.get('Name of model class');
     }
 
-    var deps = [const MakerDependency('angel_migration', '^2.0.0')];
+    var deps = [const MakerDependency('angel3_migration', '^4.0.0')];
     var rc = ReCase(name!);
 
     var migrationLib = Library((migrationLib) {
       migrationLib
         ..directives.add(Directive.import(
-            'package:angel_migration.dart/angel_migration.dart'))
+            'package:angel3_migration.dart/angel3_migration.dart'))
         ..body.add(Class((migrationClazz) {
           migrationClazz
             ..name = '${rc.pascalCase}Migration'

@@ -35,7 +35,7 @@ class PluginCommand extends Command {
     }
 
     var deps = <MakerDependency>[
-      const MakerDependency('angel_framework', '^2.0.0')
+      const MakerDependency('angel3_framework', '^4.1.0')
     ];
 
     var rc = ReCase(name!);
@@ -57,7 +57,7 @@ class PluginCommand extends Command {
     return '''
 library ${pubspec.name}.src.config.plugins.${rc.snakeCase};
 
-import 'package:angel_framework/angel_framework.dart';
+import 'package:angel3_framework/angel3_framework.dart';
 
 AngelConfigurer ${rc.camelCase}() {
   return (Angel app) async {
