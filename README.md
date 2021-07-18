@@ -1,6 +1,6 @@
 # Angel3 CLI
 
-[![Screenshot of Terminal](screenshots/screenshot.png)](https://github.com/dukefirehawk/angel3-cli)
+[![Screenshot of Terminal](screenshots/angel3-screenshot.png)](https://github.com/dukefirehawk/angel3-cli)
 
 [![version](https://img.shields.io/badge/pub-v3.0.0-brightgreen)](https://pub.dartlang.org/angel3_cli)
 [![Null Safety](https://img.shields.io/badge/null-safety-brightgreen)](https://dart.dev/null-safety)
