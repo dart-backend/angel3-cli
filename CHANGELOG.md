@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.0.1
+
+* Updated help to use `angel3`
+* Updated to use `angel3` packages
+* Updated screenshot
+
 ## 3.0.0
 
 * Fixed NNBD issues
