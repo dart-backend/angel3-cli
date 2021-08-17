@@ -84,7 +84,7 @@ class InitCommand extends Command {
       ..writeln()
       ..writeln('Find more documentation about Angel3:')
       ..writeln('  * https://angel3-framework.web.app')
-      ..writeln('  * https://angel3-docs.dukefirehaw.com')
+      ..writeln('  * https://angel3-docs.dukefirehawk.com')
       ..writeln(
           '  * https://www.youtube.com/playlist?list=PLl3P3tmiT-frEV50VdH_cIrA2YqIyHkkY')
       ..writeln('  * https://medium.com/the-angel-framework')

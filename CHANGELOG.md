@@ -1,5 +1,9 @@
 # Change Log
 
+## 3.1.0
+
+* Upgraded to support `analyzer` 2.0.0 major release
+
 ## 3.0.1
 
 * Updated help to use `angel3`

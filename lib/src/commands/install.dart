@@ -12,6 +12,7 @@ import 'package:yaml/yaml.dart' as yaml;
 import '../util.dart';
 import 'make/maker.dart';
 
+@deprecated
 class InstallCommand extends Command {
   static const String repo = 'https://github.com/angel-dart/install.git';
   static final Directory installRepo =
