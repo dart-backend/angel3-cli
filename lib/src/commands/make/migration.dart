@@ -29,7 +29,9 @@ class MigrationCommand extends Command {
   @override
   FutureOr run() async {
     String? name;
-    if (argResults!.wasParsed('name')) name = argResults!['name'] as String?;
+    if (argResults?.wasParsed('name') == true) {
+      name = argResults?['name'] as String?;
+    }
 
     if (name?.isNotEmpty != true) {
       name = prompts.get('Name of model class');

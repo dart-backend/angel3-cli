@@ -9,10 +9,10 @@ final String checkmark = ansiOutputEnabled ? '\u2714' : '[Success]';
 
 final String ballot = ansiOutputEnabled ? '\u2717' : '[Failure]';
 
-String? get homeDirPath =>
-    Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
+String get homeDirPath =>
+    Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'] ?? '.';
 
-Directory get homeDir => Directory(homeDirPath!);
+Directory get homeDir => Directory(homeDirPath);
 
 Directory get angelDir => Directory(p.join(homeDir.path, '.angel'));
 

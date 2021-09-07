@@ -31,7 +31,9 @@ class TestCommand extends Command {
   Future run() async {
     var pubspec = await loadPubspec();
     String? name;
-    if (argResults!.wasParsed('name')) name = argResults!['name'] as String?;
+    if (argResults?.wasParsed('name') == true) {
+      name = argResults?['name'] as String?;
+    }
 
     if (name?.isNotEmpty != true) {
       name = prompter.get('Name of test');
@@ -45,7 +47,7 @@ class TestCommand extends Command {
 
     var rc = ReCase(name!);
     final testDir = Directory.fromUri(
-        Directory.current.uri.resolve(argResults!['output-dir'] as String));
+        Directory.current.uri.resolve(argResults?['output-dir'] as String));
     final testFile =
         File.fromUri(testDir.uri.resolve('${rc.snakeCase}_test.dart'));
     if (!await testFile.exists()) await testFile.create(recursive: true);
@@ -69,7 +71,7 @@ class TestCommand extends Command {
     }
   }
 
-  String _generateRunConfiguration(String? name, ReCase rc) {
+  String _generateRunConfiguration(String name, ReCase rc) {
     return '''
     <component name="ProjectRunConfigurationManager">
       <configuration default="false" name="$name Tests" type="DartTestRunConfigurationType" factoryName="Dart Test" singleton="true">

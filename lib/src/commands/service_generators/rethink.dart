@@ -31,7 +31,7 @@ class RethinkServiceGenerator extends ServiceGenerator {
   }
 
   @override
-  void applyToLibrary(LibraryBuilder library, String? name, String lower) {
+  void applyToLibrary(LibraryBuilder library, String name, String lower) {
     library.directives.addAll([
       'package:angel3_rethink/angel3_rethink.dart',
       'package:rethinkdb_dart/rethinkdb_dart.dart'
@@ -40,7 +40,7 @@ class RethinkServiceGenerator extends ServiceGenerator {
 
   @override
   Expression createInstance(LibraryBuilder library, MethodBuilder methodBuilder,
-      String? name, String lower) {
+      String name, String lower) {
     return refer('RethinkService').newInstance([
       refer('connection'),
       refer('r').property('table').call([literal(pluralize(lower))])

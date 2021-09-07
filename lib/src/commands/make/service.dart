@@ -34,7 +34,9 @@ class ServiceCommand extends Command {
   void run() async {
     await loadPubspec();
     String? name;
-    if (argResults!.wasParsed('name')) name = argResults!['name'] as String?;
+    if (argResults?.wasParsed('name') == true) {
+      name = argResults?['name'] as String?;
+    }
 
     if (name?.isNotEmpty != true) {
       name = prompts.get('Name of service');
@@ -61,11 +63,11 @@ class ServiceCommand extends Command {
         if (!deps.any((d) => d.name == dep.name)) deps.add(dep);
       }
 
-      if (generator.goesFirst) {
+      if (name != null && generator.goesFirst) {
         generator.applyToLibrary(serviceLib, name, rc.snakeCase);
         serviceLib.directives.add(
             Directive.import('package:angel3_framework/angel3_framework.dart'));
-      } else {
+      } else if (name != null) {
         serviceLib.directives.add(
             Directive.import('package:angel3_framework/angel3_framework.dart'));
         generator.applyToLibrary(serviceLib, name, rc.snakeCase);
@@ -83,8 +85,10 @@ class ServiceCommand extends Command {
           ..returns = refer('AngelConfigurer');
 
         configureServer.body = Block((block) {
-          generator.applyToConfigureServer(
-              serviceLib, configureServer, block, name, rc.snakeCase);
+          if (name != null) {
+            generator.applyToConfigureServer(
+                serviceLib, configureServer, block, name, rc.snakeCase);
+          }
 
           // return (Angel app) async {}
           var closure = Method((closure) {
@@ -93,24 +97,27 @@ class ServiceCommand extends Command {
               ..requiredParameters.add(Parameter((b) => b
                 ..name = 'app'
                 ..type = refer('Angel')));
+
             closure.body = Block((block) {
-              generator.beforeService(serviceLib, block, name, rc.snakeCase);
+              if (name != null) {
+                generator.beforeService(serviceLib, block, name, rc.snakeCase);
 
-              // app.use('/api/todos', new MapService());
-              var service = generator.createInstance(
-                  serviceLib, closure, name, rc.snakeCase);
+                // app.use('/api/todos', new MapService());
+                var service = generator.createInstance(
+                    serviceLib, closure, name, rc.snakeCase);
 
-              if (argResults!['typed'] as bool) {
-                var tb = TypeReference((b) => b
-                  ..symbol = 'TypedService'
-                  ..types.add(refer(rc.pascalCase)));
-                service = tb.newInstance([service]);
+                if (argResults!['typed'] as bool) {
+                  var tb = TypeReference((b) => b
+                    ..symbol = 'TypedService'
+                    ..types.add(refer(rc.pascalCase)));
+                  service = tb.newInstance([service]);
+                }
+
+                block.addExpression(refer('app').property('use').call([
+                  literal('/api/${pluralize(rc.snakeCase)}'),
+                  service,
+                ]));
               }
-
-              block.addExpression(refer('app').property('use').call([
-                literal('/api/${pluralize(rc.snakeCase)}'),
-                service,
-              ]));
             });
           });
 

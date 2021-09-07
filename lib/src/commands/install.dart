@@ -55,16 +55,16 @@ class InstallCommand extends Command {
         'See here: https://github.com/angel-dart/install.git\n\n'
         'To stop seeing this, downgrade to `package:angel_cli@<=2.0.0`.'));
 
-    if (argResults!['wipe'] as bool) {
+    if (argResults?['wipe'] as bool) {
       if (await installRepo.exists()) await installRepo.delete(recursive: true);
-    } else if (argResults!['list'] as bool) {
+    } else if (argResults?['list'] as bool) {
       var addons = await list();
       print('${addons.length} add-on(s) installed:');
 
       for (var addon in addons) {
         print('  * ${addon.name}@${addon.version}: ${addon.description}');
       }
-    } else if (argResults!['update'] as bool) {
+    } else if (argResults?['update'] as bool) {
       await update();
     } else if (argResults!.rest.isNotEmpty) {
       if (!await installRepo.exists()) {
@@ -73,7 +73,7 @@ class InstallCommand extends Command {
 
       var pubspec = await loadPubspec();
 
-      for (var packageName in argResults!.rest) {
+      for (var packageName in argResults?.rest ?? <String>[]) {
         var packageDir =
             Directory.fromUri(installRepo.uri.resolve(packageName));
 
@@ -98,7 +98,7 @@ class InstallCommand extends Command {
               }
               return null;
             })
-            .where((d) => d != null)
+            .whereType<MakerDependency>()
             .toList();
 
         deps.addAll(projectPubspec.devDependencies.keys.map((k) {
@@ -107,7 +107,7 @@ class InstallCommand extends Command {
             return MakerDependency(k, dep.version.toString(), dev: true);
           }
           return null;
-        }).where((d) => d != null));
+        }).whereType<MakerDependency>());
 
         await depend(deps);
 

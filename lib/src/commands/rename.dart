@@ -21,15 +21,15 @@ class RenameCommand extends Command {
 
   @override
   Future run() async {
-    String newName;
+    String? newName;
 
-    if (argResults!.rest.isNotEmpty) {
-      newName = argResults!.rest.first;
+    if (argResults?.rest.isNotEmpty == true) {
+      newName = argResults?.rest.first;
     } else {
       newName = prompts.get('Rename project to');
     }
 
-    newName = ReCase(newName).snakeCase;
+    newName = ReCase(newName!).snakeCase;
 
     var choice = prompts.getBool('Rename the project to `$newName`?');
 

@@ -26,7 +26,7 @@ class MongoServiceGenerator extends ServiceGenerator {
   }
 
   @override
-  void applyToLibrary(LibraryBuilder library, String? name, String lower) {
+  void applyToLibrary(LibraryBuilder library, String name, String lower) {
     library.directives.addAll([
       Directive.import('package:angel3_mongo/angel3_mongo.dart'),
       Directive.import('package:mongo_dart/mongo_dart.dart'),
@@ -35,7 +35,7 @@ class MongoServiceGenerator extends ServiceGenerator {
 
   @override
   Expression createInstance(LibraryBuilder library, MethodBuilder methodBuilder,
-      String? name, String lower) {
+      String name, String lower) {
     return refer('MongoService').newInstance([
       refer('db').property('collection').call([literal(pluralize(lower))])
     ]);

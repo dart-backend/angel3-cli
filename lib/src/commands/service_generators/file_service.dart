@@ -26,7 +26,7 @@ class FileServiceGenerator extends ServiceGenerator {
   }
 
   @override
-  void applyToLibrary(LibraryBuilder library, String? name, String lower) {
+  void applyToLibrary(LibraryBuilder library, String name, String lower) {
     library.directives.addAll([
       Directive.import('package:angel3_file_service/angel3_file_service.dart'),
     ]);
@@ -34,7 +34,7 @@ class FileServiceGenerator extends ServiceGenerator {
 
   @override
   Expression createInstance(LibraryBuilder library, MethodBuilder methodBuilder,
-      String? name, String lower) {
+      String name, String lower) {
     library.directives.addAll([
       Directive.import('package:file/file.dart'),
     ]);

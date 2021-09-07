@@ -28,7 +28,9 @@ class PluginCommand extends Command {
   Future run() async {
     var pubspec = await loadPubspec();
     String? name;
-    if (argResults!.wasParsed('name')) name = argResults!['name'] as String?;
+    if (argResults?.wasParsed('name') == true) {
+      name = argResults?['name'] as String?;
+    }
 
     if (name?.isNotEmpty != true) {
       name = prompts.get('Name of plug-in class');

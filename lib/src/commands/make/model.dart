@@ -34,7 +34,9 @@ class ModelCommand extends Command {
   @override
   Future run() async {
     String? name;
-    if (argResults!.wasParsed('name')) name = argResults!['name'] as String?;
+    if (argResults?.wasParsed('name') == true) {
+      name = argResults?['name'] as String?;
+    }
 
     if (name?.isNotEmpty != true) {
       name = prompts.get('Name of model class');
@@ -47,14 +49,14 @@ class ModelCommand extends Command {
     var rc = ReCase(name!);
 
     var modelLib = Library((modelLib) {
-      if (argResults!['orm'] as bool && argResults!['migration'] as bool) {
+      if (argResults?['orm'] as bool && argResults?['migration'] as bool) {
         modelLib.directives.addAll([
           Directive.import('package:angel3_migration/angel3_migration.dart'),
         ]);
       }
 
       var needsSerialize =
-          argResults!['serializable'] as bool || argResults!['orm'] as bool;
+          argResults?['serializable'] as bool || argResults?['orm'] as bool;
       // argResults['migration'] as bool;
 
       if (needsSerialize) {
@@ -71,7 +73,7 @@ class ModelCommand extends Command {
       //   deps.add(const MakerDependency('angel_model', '^1.0.0'));
       // }
 
-      if (argResults!['orm'] as bool) {
+      if (argResults?['orm'] as bool) {
         modelLib.directives.addAll([
           Directive.import('package:angel3_orm/angel3_orm.dart'),
         ]);
@@ -93,8 +95,8 @@ class ModelCommand extends Command {
           modelClazz.annotations.add(refer('serializable'));
         }
 
-        if (argResults!['orm'] as bool) {
-          if (argResults!['migration'] as bool) {
+        if (argResults?['orm'] as bool) {
+          if (argResults?['migration'] as bool) {
             modelClazz.annotations.add(refer('orm'));
           } else {
             modelClazz.annotations.add(
@@ -106,7 +108,7 @@ class ModelCommand extends Command {
 
     // Save model file
     var outputDir = Directory.fromUri(
-        Directory.current.uri.resolve(argResults!['output-dir'] as String));
+        Directory.current.uri.resolve(argResults?['output-dir'] as String));
     var modelFile = File.fromUri(outputDir.uri.resolve('${rc.snakeCase}.dart'));
     if (!await modelFile.exists()) await modelFile.create(recursive: true);
 
