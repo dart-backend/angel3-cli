@@ -244,7 +244,9 @@ class InstallCommand extends Command {
       );
     }
 
-    git..stdout.listen(stdout.add)..stderr.listen(stderr.add);
+    git
+      ..stdout.listen(stdout.add)
+      ..stderr.listen(stderr.add);
 
     var code = await git.exitCode;
 

@@ -1,5 +1,5 @@
 name: angel3_cli
-version: 3.1.1
+version: 3.2.0
 description: Command line tools for the Angel3 framework, including scaffolding.
 homepage: https://angel3-framework.web.app/
 repository: https://github.com/dukefirehawk/angel3-cli
@@ -24,6 +24,6 @@ dependencies:
   watcher: ^1.0.0
   yaml: ^3.1.0
 dev_dependencies:
-  pedantic: ^1.11.0
+  lints: ^1.0.0
 executables: 
   angel3: angel3
