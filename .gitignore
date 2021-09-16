@@ -58,5 +58,5 @@ sample-project
 .dart_tool
 .metals
 
-.vscode
+.vscode/
 !.vscode/settings.json
