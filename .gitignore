@@ -59,4 +59,4 @@ sample-project
 .metals
 
 .vscode
-!settings.json
+!.vscode/settings.json
