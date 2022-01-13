@@ -129,7 +129,7 @@ class InitCommand extends Command {
   }
 
   Future _cloneRepo(Directory projectDir) async {
-    late Directory boilerplateDir;
+    Directory boilerplateDir = Directory("./empty");
 
     try {
       if (await projectDir.exists()) {
@@ -255,14 +255,14 @@ class InitCommand extends Command {
   }
 
   Future _pubGet(Directory projectDir) async {
-    var pubPath = "dart pub";
-    //print(darkGray.wrap('Running "$pubPath"...'));
-    print(darkGray.wrap('\$ $pubPath get'));
-    var pub = await Process.start(pubPath, ['get'],
+    var dartPath = "dart";
+    print(darkGray.wrap('Running "$dartPath"...'));
+    print(darkGray.wrap('\$ $dartPath pub get'));
+    var dart = await Process.start(dartPath, ['pub', 'get'],
         workingDirectory: projectDir.absolute.path,
         mode: ProcessStartMode.inheritStdio);
-    var code = await pub.exitCode;
-    print('Pub process exited with code $code');
+    var code = await dart.exitCode;
+    print('Dart process exited with code $code');
   }
 }
 
