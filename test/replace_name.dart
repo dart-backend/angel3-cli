@@ -22,7 +22,7 @@ void main() async {
 
   String updateMustacheBinding(String content, String oldName, String newName) {
     if (content.contains('{{$oldName}}')) {
-      return content.replaceAll('{{$oldName}}', '$newName');
+      return content.replaceAll('{{$oldName}}', newName);
     }
 
     return content;

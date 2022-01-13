@@ -2,6 +2,7 @@ import 'dart:io';
 
 final RegExp _leadingSlashes = RegExp(r'^/+');
 
+@Deprecated("Replaced by dart pub")
 String resolvePub() {
   var exec = File(Platform.resolvedExecutable);
   var pubPath = exec.parent.uri.resolve('pub').path;

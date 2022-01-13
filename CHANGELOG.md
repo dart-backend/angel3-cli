@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.0.0
+
+* Changed `pub` to `dart pub`
+* Changed `pub build` to `dart build`
+* Updated min SDK to 2.14.0
+
 ## 3.2.0
 
 * Upgraded from `pedantic` to `lints` linter

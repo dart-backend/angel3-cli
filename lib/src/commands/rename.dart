@@ -133,7 +133,7 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
   // Replace mustache {{oldName}} with newName
   String updateMustacheBinding(String content, String oldName, String newName) {
     if (content.contains('{{$oldName}}')) {
-      return content.replaceAll('{{$oldName}}', '$newName');
+      return content.replaceAll('{{$oldName}}', newName);
     }
 
     return content;
@@ -205,8 +205,8 @@ class RenamingVisitor extends RecursiveAstVisitor {
   }
 
   @override
-  void visitExportDirective(ExportDirective ctx) {
-    var uri = ctx.uri.stringValue;
+  void visitExportDirective(ExportDirective node) {
+    var uri = node.uri.stringValue;
     if (uri != null) {
       var updated = updateUri(uri);
       if (uri != updated) replace[[uri]] = updated;
@@ -214,8 +214,8 @@ class RenamingVisitor extends RecursiveAstVisitor {
   }
 
   @override
-  void visitImportDirective(ImportDirective ctx) {
-    var uri = ctx.uri.stringValue;
+  void visitImportDirective(ImportDirective node) {
+    var uri = node.uri.stringValue;
 
     if (uri != null) {
       var updated = updateUri(uri);
@@ -224,22 +224,22 @@ class RenamingVisitor extends RecursiveAstVisitor {
   }
 
   @override
-  void visitLibraryDirective(LibraryDirective ctx) {
-    var name = ctx.name.name;
+  void visitLibraryDirective(LibraryDirective node) {
+    var name = node.name.name;
 
     if (name.startsWith(oldName)) {
-      replace[[ctx.offset, ctx.end]] =
+      replace[[node.offset, node.end]] =
           'library ' + name.replaceFirst(oldName, newName) + ';';
     }
   }
 
   @override
-  void visitPartOfDirective(PartOfDirective ctx) {
-    if (ctx.libraryName != null) {
-      var name = ctx.libraryName!.name;
+  void visitPartOfDirective(PartOfDirective node) {
+    if (node.libraryName != null) {
+      var name = node.libraryName!.name;
 
       if (name.startsWith(oldName)) {
-        replace[[ctx.offset, ctx.end]] =
+        replace[[node.offset, node.end]] =
             'part of ' + name.replaceFirst(oldName, newName) + ';';
       }
     }

@@ -26,11 +26,11 @@ void main(List<String> args) async {
     ..addCommand(DoctorCommand())
     ..addCommand(KeyCommand())
     ..addCommand(InitCommand())
-    ..addCommand(InstallCommand())
+//    ..addCommand(InstallCommand())
     ..addCommand(RenameCommand())
     ..addCommand(MakeCommand());
 
-  return await runner.run(args).catchError((exc, st) {
+  await runner.run(args).catchError((exc, st) {
     if (exc is String) {
       stdout.writeln(exc);
     } else {
@@ -67,10 +67,10 @@ const String asciiArt = '''
 
 const String asciiArt3 = '''
                                              
-     \      \  |   ___|  ____|  |     ___ /  
-    _ \      \ |  |      __|    |       _ \  
-   ___ \   |\  |  |   |  |      |        ) | 
- _/    _\ _| \_| \____| _____| _____| ____/  
+     \\      \\  |   ___|  ____|  |     ___ /  
+    _ \\      \\ |  |      __|    |       _ \\  
+   ___ \\   |\\  |  |   |  |      |        ) | 
+ _/    _\\ _| \\_| \\____| _____| _____| ____/  
                                              
 ''';
 const String asciiArtOld = '''
@@ -78,6 +78,6 @@ ____________   ________________________
 ___    |__  | / /_  ____/__  ____/__  / 
 __  /| |_   |/ /_  / __ __  __/  __  /  
 _  ___ |  /|  / / /_/ / _  /___  _  /___
-/_/  |_/_/ |_/  \____/  /_____/  /_____/
+/_/  |_/_/ |_/  \\____/  /_____/  /_____/
                                         
 ''';

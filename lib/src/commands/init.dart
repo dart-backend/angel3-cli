@@ -8,7 +8,6 @@ import 'package:recase/recase.dart';
 import '../random_string.dart' as rs;
 import '../util.dart';
 import 'key.dart';
-import 'pub.dart';
 import 'rename.dart';
 
 class InitCommand extends Command {
@@ -66,7 +65,7 @@ class InitCommand extends Command {
     // Renaming executable files
 
     if (argResults!['pub-get'] != false && argResults!['offline'] == false) {
-      print('Now running pub get...');
+      print('Now running dart pub get...');
       await _pubGet(projectDir);
     }
 
@@ -222,7 +221,7 @@ class InitCommand extends Command {
       // Otherwise, pull from git.
       else if (!(argResults!['offline'] as bool)) {
         print(darkGray.wrap('\$ git pull origin $branch'));
-        var git = await Process.start('git', ['pull', 'origin', '$branch'],
+        var git = await Process.start('git', ['pull', 'origin', branch],
             mode: ProcessStartMode.inheritStdio,
             workingDirectory: boilerplateDir.absolute.path);
         if (await git.exitCode != 0) {
@@ -256,8 +255,8 @@ class InitCommand extends Command {
   }
 
   Future _pubGet(Directory projectDir) async {
-    var pubPath = resolvePub();
-    print(darkGray.wrap('Running pub at "$pubPath"...'));
+    var pubPath = "dart pub";
+    //print(darkGray.wrap('Running "$pubPath"...'));
     print(darkGray.wrap('\$ $pubPath get'));
     var pub = await Process.start(pubPath, ['get'],
         workingDirectory: projectDir.absolute.path,
@@ -269,11 +268,10 @@ class InitCommand extends Command {
 
 Future preBuild(Directory projectDir) async {
   // Run build
-  // print('Running `pub run build_runner build`...');
-  print(darkGray.wrap('\$ pub run build_runner build'));
+  // print('Running `dart run build_runner build`...');
+  print(darkGray.wrap('\$ dart run build_runner build'));
 
-  var build = await Process.start(
-      resolvePub(), ['run', 'build_runner', 'build'],
+  var build = await Process.start("dart", ['run', 'build_runner', 'build'],
       workingDirectory: projectDir.absolute.path,
       mode: ProcessStartMode.inheritStdio);
 
@@ -282,37 +280,37 @@ Future preBuild(Directory projectDir) async {
   if (buildCode != 0) throw Exception('Failed to pre-build resources.');
 }
 
-const RepoLocation = 'https://github.com/dukefirehawk';
+const repoLocation = 'https://github.com/dukefirehawk';
 
 const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
   'GraphQL',
   'A starter application with GraphQL support.',
-  '$RepoLocation/boilerplates.git',
+  '$repoLocation/boilerplates.git',
   ref: 'angel3-graphql',
 );
 
 const BoilerplateInfo ormBoilerplate = BoilerplateInfo(
   'ORM',
   'A starter application with ORM support.',
-  '$RepoLocation/boilerplates.git',
+  '$repoLocation/boilerplates.git',
   ref: 'angel3-orm',
 );
 
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
     'Basic',
     'A basic starter application with minimal packages.',
-    '$RepoLocation/boilerplates.git',
+    '$repoLocation/boilerplates.git',
     ref: 'angel3-basic');
 
 const BoilerplateInfo sharedBoilerplate = BoilerplateInfo(
     'Shared',
     'Holds common models and files shared across multiple Dart projects.',
-    '$RepoLocation/boilerplate_shared.git');
+    '$repoLocation/boilerplate_shared.git');
 
 const BoilerplateInfo sharedOrmBoilerplate = BoilerplateInfo(
   'Shared (ORM)',
   'Holds common models and files shared across multiple Dart projects.',
-  '$RepoLocation/boilerplate_shared.git',
+  '$repoLocation/boilerplate_shared.git',
   ref: 'orm',
 );
 
