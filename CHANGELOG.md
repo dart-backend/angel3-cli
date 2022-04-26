@@ -1,10 +1,14 @@
 # Change Log
 
+## 5.0.0
+
+* Updated SDK to 2.16.x
+
 ## 4.0.0
 
 * Changed `pub` to `dart pub`
 * Changed `pub build` to `dart build`
-* Updated min SDK to 2.14.0
+* Updated SDK to 2.14.0
 
 ## 3.2.0
 

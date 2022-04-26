@@ -84,10 +84,10 @@ class InitCommand extends Command {
       ..writeln('Find more documentation about Angel3:')
       ..writeln('  * https://angel3-framework.web.app')
       ..writeln('  * https://angel3-docs.dukefirehawk.com')
-      ..writeln(
-          '  * https://www.youtube.com/playlist?list=PLl3P3tmiT-frEV50VdH_cIrA2YqIyHkkY')
-      ..writeln('  * https://medium.com/the-angel-framework')
-      ..writeln('  * https://dart.academy/tag/angel')
+//      ..writeln(
+//          '  * https://www.youtube.com/playlist?list=PLl3P3tmiT-frEV50VdH_cIrA2YqIyHkkY')
+//      ..writeln('  * https://medium.com/the-angel-framework')
+//      ..writeln('  * https://dart.academy/tag/angel')
       ..writeln()
       ..writeln('Happy coding!');
   }
