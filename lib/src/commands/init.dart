@@ -290,10 +290,17 @@ const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
 );
 
 const BoilerplateInfo ormBoilerplate = BoilerplateInfo(
-  'ORM',
-  'A starter application with ORM support.',
+  'ORM for PostgreSQL',
+  'A starter application with ORM support for PostgreSQL.',
   '$repoLocation/boilerplates.git',
   ref: 'angel3-orm',
+);
+
+const BoilerplateInfo ormMySqlBoilerplate = BoilerplateInfo(
+  'ORM for MariaDB',
+  'A starter application with ORM support for MariaDB.',
+  '$repoLocation/boilerplates.git',
+  ref: 'angel3-orm-mysql',
 );
 
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
@@ -317,6 +324,7 @@ const BoilerplateInfo sharedOrmBoilerplate = BoilerplateInfo(
 const List<BoilerplateInfo> boilerplates = [
   basicBoilerplate,
   ormBoilerplate,
+  ormMySqlBoilerplate,
   graphQLBoilerplate,
   //sharedBoilerplate,
   //sharedOrmBoilerplate,
