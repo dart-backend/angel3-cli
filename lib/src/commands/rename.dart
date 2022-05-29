@@ -148,7 +148,7 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
         var contents = lineList.fold<String>('', (prev, cur) {
           var updatedCur = updateImport(cur, oldName, newName);
           updatedCur = updateMustacheBinding(updatedCur, oldName, newName);
-          return prev + '\n' + updatedCur;
+          return '$prev\n$updatedCur';
         });
         await file.writeAsString(fmt.format(contents));
 
@@ -198,7 +198,7 @@ class RenamingVisitor extends RecursiveAstVisitor {
     if (uri == 'package:$oldName/$oldName.dart') {
       return 'package:$newName/$newName.dart';
     } else if (uri.startsWith('package:$oldName/')) {
-      return 'package:$newName/' + uri.replaceFirst('package:$oldName/', '');
+      return 'package:$newName/${uri.replaceFirst('package:$oldName/', '')}';
     } else {
       return uri;
     }
@@ -229,7 +229,7 @@ class RenamingVisitor extends RecursiveAstVisitor {
 
     if (name.startsWith(oldName)) {
       replace[[node.offset, node.end]] =
-          'library ' + name.replaceFirst(oldName, newName) + ';';
+          'library ${name.replaceFirst(oldName, newName)};';
     }
   }
 
@@ -240,7 +240,7 @@ class RenamingVisitor extends RecursiveAstVisitor {
 
       if (name.startsWith(oldName)) {
         replace[[node.offset, node.end]] =
-            'part of ' + name.replaceFirst(oldName, newName) + ';';
+            'part of ${name.replaceFirst(oldName, newName)};';
       }
     }
   }
