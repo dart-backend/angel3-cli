@@ -1,5 +1,10 @@
 # Change Log
 
+## 6.1.0
+
+* Updated to `analyzer` 4.x.x
+* Updated to `lints` 2.x.x
+
 ## 6.0.1
 
 * Added `angel3-orm-mysql` template for ORM support for MariaDB and MySQL
