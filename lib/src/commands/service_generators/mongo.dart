@@ -8,7 +8,7 @@ class MongoServiceGenerator extends ServiceGenerator {
 
   @override
   List<MakerDependency> get dependencies =>
-      const [MakerDependency('angel3_mongo', '^4.0.0')];
+      const [MakerDependency('angel3_mongo', '^7.0.0')];
 
   @override
   bool get createsModel => false;

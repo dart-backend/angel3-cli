@@ -286,28 +286,28 @@ const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
   'GraphQL',
   'A starter application with GraphQL support.',
   '$repoLocation/boilerplates.git',
-  ref: 'angel3-graphql',
+  ref: 'v7/angel3-graphql',
 );
 
 const BoilerplateInfo ormBoilerplate = BoilerplateInfo(
   'ORM for PostgreSQL',
   'A starter application with ORM support for PostgreSQL.',
   '$repoLocation/boilerplates.git',
-  ref: 'angel3-orm',
+  ref: 'v7/angel3-orm',
 );
 
 const BoilerplateInfo ormMySqlBoilerplate = BoilerplateInfo(
-  'ORM for MariaDB',
-  'A starter application with ORM support for MariaDB.',
+  'ORM for MySQL/MariaDB',
+  'A starter application with ORM support for MySQL/MariaDB.',
   '$repoLocation/boilerplates.git',
-  ref: 'angel3-orm-mysql',
+  ref: 'v7/angel3-orm-mysql',
 );
 
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
     'Basic',
     'A basic starter application with minimal packages.',
     '$repoLocation/boilerplates.git',
-    ref: 'angel3-basic');
+    ref: 'v7/angel3-basic');
 
 const BoilerplateInfo sharedBoilerplate = BoilerplateInfo(
     'Shared',

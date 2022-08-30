@@ -1,5 +1,10 @@
 # Change Log
 
+## 7.0.0
+
+* Required Dart >= 2.17.x
+* Updated packages versions
+
 ## 6.1.0
 
 * Updated to `analyzer` 4.x.x
@@ -11,7 +16,7 @@
 
 ## 6.0.0
 
-* Updated SDK to 2.16.x
+* Required Dart >= 2.16.x
 
 ## 5.0.0
 

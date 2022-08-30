@@ -62,9 +62,9 @@ class ModelCommand extends Command {
       if (needsSerialize) {
         modelLib.directives.add(
             Directive.import('package:angel3_serialize/angel3_serialize.dart'));
-        deps.add(const MakerDependency('angel3_serialize', '^4.0.0'));
-        deps.add(const MakerDependency('angel3_serialize_generator', '^4.0.0'));
-        deps.add(const MakerDependency('build_runner', '^2.0.0'));
+        deps.add(const MakerDependency('angel3_serialize', '^7.0.0'));
+        deps.add(const MakerDependency('angel3_serialize_generator', '^7.0.0'));
+        deps.add(const MakerDependency('build_runner', '^2.2.0'));
       }
 
       // else {
@@ -77,7 +77,7 @@ class ModelCommand extends Command {
         modelLib.directives.addAll([
           Directive.import('package:angel3_orm/angel3_orm.dart'),
         ]);
-        deps.add(const MakerDependency('angel3_orm', '^4.0.0'));
+        deps.add(const MakerDependency('angel3_orm', '^7.0.0'));
       }
 
       modelLib.body.addAll([

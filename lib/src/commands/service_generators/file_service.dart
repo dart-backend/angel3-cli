@@ -8,7 +8,7 @@ class FileServiceGenerator extends ServiceGenerator {
 
   @override
   List<MakerDependency> get dependencies =>
-      const [MakerDependency('angel3_file_service', '^4.0.0')];
+      const [MakerDependency('angel3_file_service', '^7.0.0')];
 
   @override
   bool get goesFirst => true;
@@ -41,7 +41,7 @@ class FileServiceGenerator extends ServiceGenerator {
     return refer('JsonFileService').newInstance([
       refer('dbDirectory')
           .property('childFile')
-          .call([literal(pluralize(lower) + '_db.json')])
+          .call([literal('${pluralize(lower)}_db.json')])
     ]);
   }
 }
