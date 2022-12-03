@@ -42,7 +42,7 @@ void main() async {
         var contents = lineList.fold<String>('', (prev, cur) {
           var updatedCur = updateImport(cur, oldName, newName);
           updatedCur = updateMustacheBinding(updatedCur, oldName, newName);
-          return prev + '\n' + updatedCur;
+          return '$prev\n$updatedCur';
         });
         await file.writeAsString(fmt.format(contents));
 
