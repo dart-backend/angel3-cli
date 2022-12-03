@@ -8,6 +8,7 @@ class ServiceGenerator {
 
   List<MakerDependency> get dependencies => [];
 
+  /*
   @deprecated
   bool get createsModel => true;
 
@@ -22,6 +23,7 @@ class ServiceGenerator {
 
   @deprecated
   bool get shouldRunBuild => false;
+  */
 
   bool get goesFirst => false;
 
