@@ -1,29 +1,29 @@
 name: angel3_cli
-version: 6.0.1
+version: 8.0.0
 description: Command line tools for the Angel3 framework, including scaffolding.
 homepage: https://angel3-framework.web.app/
 repository: https://github.com/dukefirehawk/angel3-cli
 environment: 
-  sdk: '>=2.16.0 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 dependencies: 
-  analyzer: ^3.0.0
-  args: ^2.1.1
-  code_builder: ^4.0.0
-  dart_style: ^2.0.1
-  glob: ^2.0.1
-  http: ^0.13.3
+  analyzer: ^5.13.0
+  args: ^2.4.0
+  code_builder: ^4.5.0
+  dart_style: ^2.3.0
+  glob: ^2.1.0
+  http: ^1.0.0
   io: ^1.0.0
   inflection3: ^0.5.3+2
   mustache_template: ^2.0.0
   path: ^1.8.0
   prompts: ^2.0.0
-  pubspec_parse: ^1.0.0
-  quiver: ^3.0.1
-  recase: ^4.0.0
+  pubspec_parse: ^1.2.0
+  quiver: ^3.2.0
+  recase: ^4.1.0
   shutdown: ^0.4.3
-  watcher: ^1.0.0
+  watcher: ^1.1.0
   yaml: ^3.1.0
 dev_dependencies:
-  lints: ^1.0.0
+  lints: ^2.0.0
 executables: 
   angel3: angel3

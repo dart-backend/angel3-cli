@@ -1,8 +1,12 @@
 # Change Log
 
-## 6.0.1
+## 8.0.0
 
-* Added `angel3-orm-mysql` template for ORM support for MariaDB and MySQL
+* Required SDK > 3.0.x
+
+## 7.0.0
+
+* Skipped release
 
 ## 6.0.0
 
