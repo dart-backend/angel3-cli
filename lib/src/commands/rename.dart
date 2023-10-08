@@ -225,7 +225,7 @@ class RenamingVisitor extends RecursiveAstVisitor {
 
   @override
   void visitLibraryDirective(LibraryDirective node) {
-    var name = node.name.name;
+    var name = node.name2?.name ?? '';
 
     if (name.startsWith(oldName)) {
       replace[[node.offset, node.end]] =

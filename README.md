@@ -1,6 +1,6 @@
-# Angel3 CLI
+# Angel3 Command Line Interface
 
-[![Screenshot of Terminal](screenshots/angel3-screenshot.png)](https://github.com/dukefirehawk/angel3-cli)
+[![Angel3 Logo](angel3_logo.svg)](https://github.com/dukefirehawk/angel3-cli)
 
 ![Pub Version (including pre-releases)](https://img.shields.io/pub/v/angel3_cli?include_prereleases)
 [![Null Safety](https://img.shields.io/badge/null-safety-brightgreen)](https://dart.dev/null-safety)
@@ -22,12 +22,6 @@ Release version:
 dart pub global activate angel3_cli
 ```
 
-Development version:
-
-```bash
-dart pub global activate --source git https://github.com/dukefirehawk/angel3-cli
-```
-
 ## Help
 
 For information on the available options:
@@ -35,3 +29,5 @@ For information on the available options:
 ```bash
 angel3 help
 ```
+
+[![Screenshot of Terminal](screenshots/angel3-screenshot.png)](https://github.com/dukefirehawk/angel3-cli)

@@ -7,16 +7,9 @@ import 'package:args/command_runner.dart';
 import 'package:angel3_cli/angel3_cli.dart';
 import 'package:io/ansi.dart';
 
-final String DOCTOR = 'doctor';
-
 void main(List<String> args) async {
-  var runner = CommandRunner(
-      'angel3',
-      asciiArt +
-          '\n\n' +
-          'Command-line tools for the Angel3 framework.' +
-          '\n\n' +
-          'https://angel3-framework.web.app');
+  var runner = CommandRunner('angel3',
+      '$asciiArt\n\nCommand-line tools for the Angel3 framework.\n\nhttps://angel3-framework.web.app');
 
   runner.argParser
       .addFlag('verbose', help: 'Print verbose output.', negatable: false);

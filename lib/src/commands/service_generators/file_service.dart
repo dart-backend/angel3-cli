@@ -41,7 +41,7 @@ class FileServiceGenerator extends ServiceGenerator {
     return refer('JsonFileService').newInstance([
       refer('dbDirectory')
           .property('childFile')
-          .call([literal(pluralize(lower) + '_db.json')])
+          .call([literal('${pluralize(lower)}_db.json')])
     ]);
   }
 }

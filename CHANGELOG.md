@@ -1,8 +1,16 @@
 # Change Log
 
+## 8.1.0
+
+* Updated README
+* Updated logo
+* Updated to `analyzer` 6.2.x
+* Updated to support Dart SDK 3.1.3
+
 ## 8.0.0
 
-* Required SDK > 3.0.x
+* Required Dart SDK > 3.0.x
+* Updated to `analyzer` 5.0.x
 
 ## 7.0.0
 
@@ -10,7 +18,7 @@
 
 ## 6.0.0
 
-* Updated SDK to 2.16.x
+* Updated Dart SDK to 2.16.x
 
 ## 5.0.0
 
@@ -20,7 +28,7 @@
 
 * Changed `pub` to `dart pub`
 * Changed `pub build` to `dart build`
-* Updated SDK to 2.14.0
+* Updated Dart SDK to 2.14.0
 
 ## 3.2.0
 
@@ -32,7 +40,7 @@
 
 ## 3.1.0
 
-* Upgraded to support `analyzer` 2.0.0 major release
+* Upgraded to support `analyzer` 2.0.0
 
 ## 3.0.1
 
