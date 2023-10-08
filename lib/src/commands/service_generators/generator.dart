@@ -8,23 +8,6 @@ class ServiceGenerator {
 
   List<MakerDependency> get dependencies => [];
 
-  /*
-  @deprecated
-  bool get createsModel => true;
-
-  @deprecated
-  bool get createsValidator => true;
-
-  @deprecated
-  bool get exportedInServiceLibrary => true;
-
-  @deprecated
-  bool get injectsSingleton => false;
-
-  @deprecated
-  bool get shouldRunBuild => false;
-  */
-
   bool get goesFirst => false;
 
   void applyToLibrary(LibraryBuilder library, String name, String lower) {}

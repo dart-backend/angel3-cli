@@ -1,27 +1,24 @@
 # Change Log
 
-## 7.1.0
+## 8.1.0
 
-* Required Dart >= 2.18.x
-* Updated `analyzer` to 5.x.x
+* Updated README
+* Updated logo
+* Updated to `analyzer` 6.2.x
+* Updated to support Dart SDK 3.1.3
+
+## 8.0.0
+
+* Required Dart SDK > 3.0.x
+* Updated to `analyzer` 5.0.x
 
 ## 7.0.0
 
-* Required Dart >= 2.17.x
-* Updated packages versions
-
-## 6.1.0
-
-* Updated to `analyzer` 4.x.x
-* Updated to `lints` 2.x.x
-
-## 6.0.1
-
-* Added `angel3-orm-mysql` template for ORM support for MariaDB and MySQL
+* Skipped release
 
 ## 6.0.0
 
-* Required Dart >= 2.16.x
+* Updated Dart SDK to 2.16.x
 
 ## 5.0.0
 
@@ -31,7 +28,7 @@
 
 * Changed `pub` to `dart pub`
 * Changed `pub build` to `dart build`
-* Updated SDK to 2.14.0
+* Updated Dart SDK to 2.14.0
 
 ## 3.2.0
 
@@ -43,7 +40,7 @@
 
 ## 3.1.0
 
-* Upgraded to support `analyzer` 2.0.0 major release
+* Upgraded to support `analyzer` 2.0.0
 
 ## 3.0.1
 

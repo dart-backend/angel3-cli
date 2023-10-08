@@ -243,9 +243,10 @@ class InitCommand extends Command {
       var gitDir = Directory.fromUri(projectDir.uri.resolve('.git'));
       if (await gitDir.exists()) await gitDir.delete(recursive: true);
     } catch (e) {
-      await boilerplateDir.delete(recursive: true).catchError((e) {
-        print('Got error: ${e.error}');
-      });
+      await boilerplateDir.delete(recursive: true);
+      //await boilerplateDir.delete(recursive: true).catchError((e) {
+      //  print('Got error: ${e.error}');
+      //});
 
       if (e is! String) {
         print(red.wrap('$ballot Could not initialize Angel3 project.'));

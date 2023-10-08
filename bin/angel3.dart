@@ -7,8 +7,6 @@ import 'package:args/command_runner.dart';
 import 'package:angel3_cli/angel3_cli.dart';
 import 'package:io/ansi.dart';
 
-//const String doctor = 'doctor';
-
 void main(List<String> args) async {
   var runner = CommandRunner('angel3',
       '$asciiArt\n\nCommand-line tools for the Angel3 framework.\n\nhttps://angel3-framework.web.app');

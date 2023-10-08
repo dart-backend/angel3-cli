@@ -2,6 +2,10 @@ import 'package:code_builder/code_builder.dart';
 import 'generator.dart';
 
 class CustomServiceGenerator extends ServiceGenerator {
+  bool get createsModel => false;
+
+  bool get createsValidator => false;
+
   const CustomServiceGenerator() : super('Custom');
 
   @override
