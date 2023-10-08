@@ -1,6 +1,6 @@
 # Angel3 Command Line Interface
 
-[![Angel3 Logo](angel3_logo.svg)](https://github.com/dukefirehawk/angel3-cli)
+[![Angel3 Logo](angel3_logo.png)](https://github.com/dukefirehawk/angel3-cli)
 
 ![Pub Version (including pre-releases)](https://img.shields.io/pub/v/angel3_cli?include_prereleases)
 [![Null Safety](https://img.shields.io/badge/null-safety-brightgreen)](https://dart.dev/null-safety)
