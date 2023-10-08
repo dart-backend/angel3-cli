@@ -8,7 +8,7 @@ class FileServiceGenerator extends ServiceGenerator {
 
   @override
   List<MakerDependency> get dependencies =>
-      const [MakerDependency('angel3_file_service', '^4.0.0')];
+      const [MakerDependency('angel3_file_service', '^7.0.0')];
 
   @override
   bool get goesFirst => true;

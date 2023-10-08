@@ -43,7 +43,7 @@ class ServiceCommand extends Command {
     }
 
     var deps = <MakerDependency>[
-      const MakerDependency('angel3_framework', '^4.1.0')
+      const MakerDependency('angel3_framework', '^7.0.0')
     ];
 
     // '${pubspec.name}.src.services.${rc.snakeCase}'
