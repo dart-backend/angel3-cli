@@ -3,9 +3,9 @@
 ## 8.1.0
 
 * Updated README
-* Updated logo
+* Updated to new logo
 * Updated to `analyzer` 6.2.x
-* Updated to support Dart SDK 3.1.3
+* Updated to support Dart SDK 3.1.x
 
 ## 8.0.0
 
