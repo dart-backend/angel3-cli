@@ -1,9 +1,14 @@
 # Change Log
 
+## 8.1.1
+
+* Updated README
+* Updated to logo
+
 ## 8.1.0
 
 * Updated README
-* Updated to new logo
+* Updated to logo
 * Updated to `analyzer` 6.2.x
 * Updated to support Dart SDK 3.1.x
 

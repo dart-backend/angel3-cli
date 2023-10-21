@@ -1,13 +1,13 @@
-# Angel3 Command Line Interface
+# Angel3 CLI
 
-[![Angel3 Logo](angel3_logo.png)](https://github.com/dukefirehawk/angel3-cli)
+[![Angel3 Logo](angel3_logo.png)] (https://github.com/dukefirehawk/angel3-cli)
 
 ![Pub Version (including pre-releases)](https://img.shields.io/pub/v/angel3_cli?include_prereleases)
 [![Null Safety](https://img.shields.io/badge/null-safety-brightgreen)](https://dart.dev/null-safety)
 [![Gitter](https://img.shields.io/gitter/room/angel_dart/discussion)](https://gitter.im/angel_dart/discussion)
 [![License](https://img.shields.io/github/license/dukefirehawk/angel3-cli)](https://github.com/dukefirehawk/angel3-cli/blob/master/LICENSE)
 
-Command-line tools for the [Angel3 framework](https://pub.dev/packages/angel3_framework) that provides the following functionalities:
+The command line interface for buidling dart backend in [Angel3 framework](https://pub.dev/packages/angel3_framework) that provides the following functionalities:
 
 * Project scaffolding
 * Generating service models, plugins, tests and more
@@ -15,8 +15,6 @@ Command-line tools for the [Angel3 framework](https://pub.dev/packages/angel3_fr
 * Much more...
 
 ## Installation
-
-Release version:
 
 ```bash
 dart pub global activate angel3_cli

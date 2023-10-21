@@ -1,6 +1,6 @@
 name: angel3_cli
-version: 8.1.0
-description: Command line tools for the Angel3 framework, including scaffolding.
+version: 8.1.1
+description: The command line interface for building dart backend in Angel3 framework.
 homepage: https://angel3-framework.web.app/
 repository: https://github.com/dukefirehawk/angel3-cli
 environment: 
