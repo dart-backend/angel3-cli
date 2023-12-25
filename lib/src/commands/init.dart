@@ -281,7 +281,7 @@ Future preBuild(Directory projectDir) async {
   if (buildCode != 0) throw Exception('Failed to pre-build resources.');
 }
 
-const repoLocation = 'https://github.com/dukefirehawk';
+const repoLocation = 'https://github.com/dart-backend';
 
 const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
   'GraphQL',

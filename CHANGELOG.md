@@ -1,5 +1,11 @@
 # Change Log
 
+## 8.2.0
+
+* Updated to `analyzer` 6.3.x
+* Updated repository link
+* Updated `lints` to 3.0.0
+
 ## 8.1.1
 
 * Updated README
