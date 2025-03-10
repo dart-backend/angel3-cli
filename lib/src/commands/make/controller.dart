@@ -115,7 +115,8 @@ class ControllerCommand extends Command {
       await controllerFile.create(recursive: true);
     }
     await controllerFile.writeAsString(
-        DartFormatter().format(controllerLib.accept(DartEmitter()).toString()));
+        DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+            .format(controllerLib.accept(DartEmitter()).toString()));
 
     print(green.wrap(
         '$checkmark Created controller file "${controllerFile.absolute.path}"'));

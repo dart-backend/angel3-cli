@@ -126,7 +126,8 @@ class MigrationCommand extends Command {
     }
 
     await migrationFile.writeAsString(
-        DartFormatter().format(migrationLib.accept(DartEmitter()).toString()));
+        DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+            .format(migrationLib.accept(DartEmitter()).toString()));
 
     print(green.wrap(
         '$checkmark Created migration file "${migrationFile.absolute.path}".'));

@@ -1,4 +1,4 @@
-library angel3_cli.commands;
+library;
 
 export 'deploy.dart';
 export 'doctor.dart';

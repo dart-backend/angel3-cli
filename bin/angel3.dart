@@ -1,6 +1,6 @@
 #!/usr/bin/env dart
 
-library angel3_cli.tool;
+library;
 
 import 'dart:io';
 import 'package:args/command_runner.dart';

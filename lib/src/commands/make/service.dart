@@ -132,7 +132,8 @@ class ServiceCommand extends Command {
         File.fromUri(outputDir.uri.resolve('${rc.snakeCase}.dart'));
     if (!await serviceFile.exists()) await serviceFile.create(recursive: true);
     await serviceFile.writeAsString(
-        DartFormatter().format(serviceLib.accept(DartEmitter()).toString()));
+        DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+            .format(serviceLib.accept(DartEmitter()).toString()));
 
     print(green.wrap(
         '$checkmark Successfully generated service file "${serviceFile.absolute.path}".'));

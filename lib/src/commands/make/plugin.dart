@@ -46,8 +46,9 @@ class PluginCommand extends Command {
     final pluginFile =
         File.fromUri(pluginDir.uri.resolve('${rc.snakeCase}.dart'));
     if (!await pluginFile.exists()) await pluginFile.create(recursive: true);
-    await pluginFile
-        .writeAsString(DartFormatter().format(_generatePlugin(pubspec, rc)));
+    await pluginFile.writeAsString(
+        DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+            .format(_generatePlugin(pubspec, rc)));
 
     if (deps.isNotEmpty) await depend(deps);
 

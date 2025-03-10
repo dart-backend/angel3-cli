@@ -139,7 +139,7 @@ Future renameDartFiles(Directory dir, String oldName, String newName) async {
     return content;
   }
 
-  var fmt = DartFormatter();
+  var fmt = DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
   await for (FileSystemEntity file in dir.list(recursive: true)) {
     if (file is File && file.path.endsWith('.dart')) {
       var lineList = await file.readAsLines();
