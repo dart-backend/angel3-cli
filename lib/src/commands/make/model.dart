@@ -113,7 +113,8 @@ class ModelCommand extends Command {
     if (!await modelFile.exists()) await modelFile.create(recursive: true);
 
     await modelFile.writeAsString(
-        DartFormatter().format(modelLib.accept(DartEmitter()).toString()));
+        DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+            .format(modelLib.accept(DartEmitter()).toString()));
 
     print(green
         .wrap('$checkmark Created model file "${modelFile.absolute.path}".'));

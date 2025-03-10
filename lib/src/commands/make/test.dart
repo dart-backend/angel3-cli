@@ -51,8 +51,9 @@ class TestCommand extends Command {
     final testFile =
         File.fromUri(testDir.uri.resolve('${rc.snakeCase}_test.dart'));
     if (!await testFile.exists()) await testFile.create(recursive: true);
-    await testFile
-        .writeAsString(DartFormatter().format(_generateTest(pubspec, rc)));
+    await testFile.writeAsString(
+        DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+            .format(_generateTest(pubspec, rc)));
 
     if (deps.isNotEmpty) await depend(deps);
 
