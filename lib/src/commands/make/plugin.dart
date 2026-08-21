@@ -44,7 +44,7 @@ class PluginCommand extends Command {
     }
 
     var deps = <MakerDependency>[
-      const MakerDependency('angel3_framework', '^7.0.0'),
+      const MakerDependency('angel3_framework', '^9.0.0'),
     ];
 
     var rc = ReCase(name!);
