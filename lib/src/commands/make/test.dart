@@ -1,10 +1,12 @@
 import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:io/ansi.dart';
 import 'package:prompts/prompts.dart' as prompter;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:recase/recase.dart';
+
 import '../../util.dart';
 import 'maker.dart';
 
@@ -61,9 +63,8 @@ class TestCommand extends Command {
     );
     if (!await testFile.exists()) await testFile.create(recursive: true);
     await testFile.writeAsString(
-      DartFormatter(
-        languageVersion: DartFormatter.latestLanguageVersion,
-      ).format(_generateTest(pubspec, rc)),
+      DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+          .format(_generateTest(pubspec, rc)),
     );
 
     if (deps.isNotEmpty) await depend(deps);

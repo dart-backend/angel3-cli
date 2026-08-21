@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:io/ansi.dart';
 import 'package:path/path.dart' as p;
 import 'package:prompts/prompts.dart' as prompts;
 import 'package:recase/recase.dart';
+
 import '../random_string.dart' as rs;
 import '../util.dart';
 import 'key.dart';

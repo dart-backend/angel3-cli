@@ -1,6 +1,8 @@
 import 'generator.dart';
+
 import 'package:code_builder/code_builder.dart';
 import 'package:inflection3/inflection3.dart';
+
 import '../make/maker.dart';
 
 class RethinkServiceGenerator extends ServiceGenerator {

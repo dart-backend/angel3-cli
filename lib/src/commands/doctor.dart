@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:io/ansi.dart';
+
 import '../util.dart';
 
 class DoctorCommand extends Command {

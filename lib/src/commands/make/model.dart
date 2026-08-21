@@ -1,10 +1,12 @@
 import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:io/ansi.dart';
 import 'package:prompts/prompts.dart' as prompts;
 import 'package:recase/recase.dart';
+
 import '../../util.dart';
 import 'maker.dart';
 
@@ -126,9 +128,8 @@ class ModelCommand extends Command {
     if (!await modelFile.exists()) await modelFile.create(recursive: true);
 
     await modelFile.writeAsString(
-      DartFormatter(
-        languageVersion: DartFormatter.latestLanguageVersion,
-      ).format(modelLib.accept(DartEmitter()).toString()),
+      DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+          .format(modelLib.accept(DartEmitter()).toString()),
     );
 
     print(

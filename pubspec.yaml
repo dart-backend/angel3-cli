@@ -1,12 +1,14 @@
 name: angel3_cli
-version: 8.4.0
+version: 9.0.0
 description: The command line interface for building dart backend in Angel3 framework.
 homepage: https://angel3-framework.web.app/
 repository: https://github.com/dart-backend/angel3-cli
+issue_tracker: https://github.com/dart-backend/angel3-cli/issues
+
 environment: 
-  sdk: '>=3.9.0 <4.0.0'
+  sdk: '>=3.13.0 <4.0.0'
 dependencies: 
-  analyzer: ^8.4.0
+  analyzer: ^14.0.0
   args: ^2.4.0
   code_builder: ^4.5.0
   dart_style: ^3.0.0

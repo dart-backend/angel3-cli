@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
@@ -7,6 +8,7 @@ import 'package:inflection3/inflection3.dart';
 import 'package:io/ansi.dart';
 import 'package:prompts/prompts.dart' as prompts;
 import 'package:recase/recase.dart';
+
 import '../../util.dart';
 import 'maker.dart';
 
@@ -85,9 +87,9 @@ class MigrationCommand extends Command {
                           var table = refer('table');
 
                           block.addExpression(
-                            (table.property('serial').call([
-                              literal('id'),
-                            ])).property('primaryKey').call([]),
+                            (table.property('serial').call([literal('id')]))
+                                .property('primaryKey')
+                                .call([]),
                           );
 
                           block.addExpression(
@@ -105,10 +107,9 @@ class MigrationCommand extends Command {
                     });
 
                     block.addExpression(
-                      refer('schema').property('create').call([
-                        literal(tableName),
-                        callback.closure,
-                      ]),
+                      refer('schema')
+                          .property('create')
+                          .call([literal(tableName), callback.closure]),
                     );
                   });
               }),
@@ -130,9 +131,9 @@ class MigrationCommand extends Command {
                   )
                   ..body = Block((block) {
                     block.addExpression(
-                      refer(
-                        'schema',
-                      ).property('drop').call([literal(tableName)]),
+                      refer('schema')
+                          .property('drop')
+                          .call([literal(tableName)]),
                     );
                   });
               }),
@@ -153,9 +154,8 @@ class MigrationCommand extends Command {
     }
 
     await migrationFile.writeAsString(
-      DartFormatter(
-        languageVersion: DartFormatter.latestLanguageVersion,
-      ).format(migrationLib.accept(DartEmitter()).toString()),
+      DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+          .format(migrationLib.accept(DartEmitter()).toString()),
     );
 
     print(
