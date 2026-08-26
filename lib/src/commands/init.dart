@@ -320,41 +320,28 @@ const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
   'GraphQL',
   'A starter application with GraphQL support.',
   '$repoLocation/boilerplates.git',
-  ref: 'v7/angel3-graphql',
+  ref: 'master',
 );
 
 const BoilerplateInfo ormBoilerplate = BoilerplateInfo(
   'ORM for PostgreSQL',
   'A starter application with ORM support for PostgreSQL.',
   '$repoLocation/boilerplates.git',
-  ref: 'v7/angel3-orm',
+  ref: 'master',
 );
 
 const BoilerplateInfo ormMySqlBoilerplate = BoilerplateInfo(
   'ORM for MySQL/MariaDB',
   'A starter application with ORM support for MySQL/MariaDB.',
   '$repoLocation/boilerplates.git',
-  ref: 'v7/angel3-orm-mysql',
+  ref: 'master',
 );
 
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
   'Basic',
-  'A basic starter application with minimal packages.',
+  'A basic starter application.',
   '$repoLocation/boilerplates.git',
-  ref: 'v7/angel3-basic',
-);
-
-const BoilerplateInfo sharedBoilerplate = BoilerplateInfo(
-  'Shared',
-  'Holds common models and files shared across multiple Dart projects.',
-  '$repoLocation/boilerplate_shared.git',
-);
-
-const BoilerplateInfo sharedOrmBoilerplate = BoilerplateInfo(
-  'Shared (ORM)',
-  'Holds common models and files shared across multiple Dart projects.',
-  '$repoLocation/boilerplate_shared.git',
-  ref: 'orm',
+  ref: 'master',
 );
 
 const List<BoilerplateInfo> boilerplates = [
@@ -362,8 +349,6 @@ const List<BoilerplateInfo> boilerplates = [
   ormBoilerplate,
   ormMySqlBoilerplate,
   graphQLBoilerplate,
-  //sharedBoilerplate,
-  //sharedOrmBoilerplate,
 ];
 
 class BoilerplateInfo {
