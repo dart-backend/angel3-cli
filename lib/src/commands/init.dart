@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:args/command_runner.dart';
+import 'package:dcli/dcli.dart' as dcli;
+import 'package:http/http.dart' as http;
 import 'package:io/ansi.dart';
 import 'package:path/path.dart' as p;
 import 'package:prompts/prompts.dart' as prompts;
-import 'package:recase/recase.dart';
 
-import '../random_string.dart' as rs;
 import '../util.dart';
 import 'key.dart';
-import 'rename.dart';
 
 class InitCommand extends Command {
   final KeyCommand _key = KeyCommand();
@@ -50,6 +50,8 @@ class InitCommand extends Command {
     );
     print('Creating new Angel3 project in ${projectDir.absolute.path}...');
     await _cloneRepo(projectDir);
+
+    /*
     // await preBuild(projectDir);
     var secret = rs.randomAlphaNumeric(32);
     print('Generated new development JWT secret: $secret');
@@ -72,9 +74,9 @@ class InitCommand extends Command {
           );
 
     name = ReCase(name).snakeCase;
-    print('Renaming project from "angel" to "$name"...');
-    await renamePubspec(projectDir, 'angel', name);
-    await renameDartFiles(projectDir, 'angel', name);
+    print('Renaming project from "starter_app" to "$name"...');
+    await renamePubspec(projectDir, 'starter_app', name);
+    await renameDartFiles(projectDir, 'starter_app', name);
     // Renaming executable files
 
     if (argResults!['pub-get'] != false && argResults!['offline'] == false) {
@@ -83,7 +85,7 @@ class InitCommand extends Command {
     }
 
     print(green.wrap('$checkmark Successfully initialized Angel3 project.'));
-
+ */
     stdout
       ..writeln()
       ..writeln(
@@ -143,6 +145,71 @@ class InitCommand extends Command {
   }
 
   Future _cloneRepo(Directory projectDir) async {
+    Directory boilerplateDir = Directory("./empty");
+    try {
+      if (await projectDir.exists()) {
+        bool shouldDelete = dcli.confirm(
+          "Directory '${projectDir.absolute.path}' already exists. Overwrite it?",
+        );
+
+        if (!shouldDelete) {
+          throw 'Chose not to overwrite existing directory.';
+        } else if (projectDir.absolute.uri.normalizePath().toFilePath() !=
+            Directory.current.absolute.uri.normalizePath().toFilePath()) {
+          await projectDir.delete(recursive: true);
+        } else {
+          await _deleteRecursive(projectDir, false);
+        }
+      }
+
+      var boilerplate = dcli.menu(
+        'Choose a project type before continuing:',
+        options: boilerplates,
+        defaultOption: basicBoilerplate,
+      );
+
+      // Ultimately, we want a clone of every boilerplate locally on the system.
+      var boilerplateRootDir = Directory(p.join(angelDir.path, 'boilerplates'));
+      var boilerplateBasename = p.basenameWithoutExtension(boilerplate.url);
+      if (boilerplate.ref != '') {
+        boilerplateBasename += '.${boilerplate.ref}';
+      }
+      boilerplateDir = Directory(
+        p.join(boilerplateRootDir.path, boilerplateBasename),
+      );
+      await boilerplateRootDir.create(recursive: true);
+
+      if (!await boilerplateDir.exists()) {
+        if (argResults!['offline'] as bool) {
+          throw Exception(
+            '--offline was selected, but the "${boilerplate.name}" boilerplate has not yet been downloaded.',
+          );
+        }
+
+        print(
+          'Cloning "${boilerplate.name}" boilerplate from "${boilerplate.url}"...',
+        );
+
+        await downloadAndExtractSubfolder(
+          owner: 'dart-backend',
+          repo: 'boilerplates',
+          subfolderPath: 'templates/${boilerplate.name}',
+          outputDir: boilerplateDir,
+        );
+      }
+    } catch (e) {
+      //if (await boilerplateDir.exists()) {
+      //  await boilerplateDir.delete(recursive: true);
+      //}
+
+      if (e is! String) {
+        print(dcli.red('$ballot Could not initialize Angel3 project.'));
+      }
+      rethrow;
+    }
+  }
+
+  Future _cloneRepoOri(Directory projectDir) async {
     Directory boilerplateDir = Directory("./empty");
 
     try {
@@ -280,6 +347,84 @@ class InitCommand extends Command {
       }
       rethrow;
     }
+  }
+
+  /// Downloads a specific subfolder from a GitHub repository and extracts it locally.
+  ///
+  /// [owner] - GitHub username or organization (e.g., 'flutter')
+  /// [repo] - Repository name (e.g., 'samples')
+  /// [subfolderPath] - Target directory path inside the repo (e.g., 'provider_shopper')
+  /// [outputDir] - Local directory where files should be extracted
+  /// [ref] - Branch, tag, or commit hash (defaults to 'main')
+  Future<void> downloadAndExtractSubfolder({
+    required String owner,
+    required String repo,
+    required String subfolderPath,
+    required Directory outputDir,
+    String ref = 'main',
+  }) async {
+    // 1. Construct GitHub zipball download URL
+    final zipUrl = Uri.parse(
+      'https://api.github.com/repos/$owner/$repo/zipball/$ref',
+    );
+
+    print('Downloading repository archive...');
+    final response = await http.get(
+      zipUrl,
+      headers: {'Accept': 'application/vnd.github.v3+json'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to download archive: ${response.statusCode} - ${response.reasonPhrase}',
+      );
+    }
+
+    // 2. Decode the ZIP archive in memory
+    final archive = ZipDecoder().decodeBytes(response.bodyBytes);
+
+    // GitHub root folders in zip archives are named like: {owner}-{repo}-{commit_hash}/
+    // Normalize paths for consistent cross-platform matching
+    final normalizedSubfolder = p
+        .normalize(subfolderPath)
+        .replaceAll(r'\', '/');
+
+    print('Extracting target subfolder: $normalizedSubfolder...');
+
+    int extractedCount = 0;
+    for (final file in archive) {
+      // Remove the dynamic root folder prefix ({owner}-{repo}-{hash}/)
+      final pathSegments = p.normalize(file.name).split(Platform.pathSeparator);
+      if (pathSegments.length <= 1) continue;
+
+      final relativePath = pathSegments.sublist(1).join('/');
+
+      // Check if the current entry belongs to the desired subfolder
+      if (relativePath.startsWith(normalizedSubfolder)) {
+        // Strip the subfolder path prefix so contents extract directly into outputDir
+        final targetRelativePath =
+            relativePath.length == normalizedSubfolder.length
+            ? ''
+            : relativePath.substring(normalizedSubfolder.length + 1);
+
+        if (targetRelativePath.isEmpty) continue;
+
+        final destinationPath = p.join(outputDir.path, targetRelativePath);
+
+        if (file.isFile) {
+          final outFile = File(destinationPath);
+          await outFile.create(recursive: true);
+          await outFile.writeAsBytes(file.content as List<int>);
+          extractedCount++;
+        } else {
+          await Directory(destinationPath).create(recursive: true);
+        }
+      }
+    }
+
+    print(
+      'Extraction complete. $extractedCount file(s) extracted to ${outputDir.path}.',
+    );
   }
 
   Future _pubGet(Directory projectDir) async {
