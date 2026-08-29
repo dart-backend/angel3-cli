@@ -1,10 +1,12 @@
 import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:io/ansi.dart';
 import 'package:prompts/prompts.dart' as prompts;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:recase/recase.dart';
+
 import '../../util.dart';
 import 'maker.dart';
 
@@ -42,7 +44,7 @@ class PluginCommand extends Command {
     }
 
     var deps = <MakerDependency>[
-      const MakerDependency('angel3_framework', '^7.0.0'),
+      const MakerDependency('angel3_framework', '^9.0.0'),
     ];
 
     var rc = ReCase(name!);
@@ -54,9 +56,8 @@ class PluginCommand extends Command {
     );
     if (!await pluginFile.exists()) await pluginFile.create(recursive: true);
     await pluginFile.writeAsString(
-      DartFormatter(
-        languageVersion: DartFormatter.latestLanguageVersion,
-      ).format(_generatePlugin(pubspec, rc)),
+      DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+          .format(_generatePlugin(pubspec, rc)),
     );
 
     if (deps.isNotEmpty) await depend(deps);

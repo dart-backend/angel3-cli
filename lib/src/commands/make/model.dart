@@ -1,10 +1,12 @@
 import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:io/ansi.dart';
 import 'package:prompts/prompts.dart' as prompts;
 import 'package:recase/recase.dart';
+
 import '../../util.dart';
 import 'maker.dart';
 
@@ -73,9 +75,9 @@ class ModelCommand extends Command {
         modelLib.directives.add(
           Directive.import('package:angel3_serialize/angel3_serialize.dart'),
         );
-        deps.add(const MakerDependency('angel3_serialize', '^7.0.0'));
-        deps.add(const MakerDependency('angel3_serialize_generator', '^7.0.0'));
-        deps.add(const MakerDependency('build_runner', '^2.2.0'));
+        deps.add(const MakerDependency('angel3_serialize', '^9.0.0'));
+        deps.add(const MakerDependency('angel3_serialize_generator', '^9.0.0'));
+        deps.add(const MakerDependency('build_runner', '^2.16.0'));
       }
 
       // else {
@@ -88,7 +90,7 @@ class ModelCommand extends Command {
         modelLib.directives.addAll([
           Directive.import('package:angel3_orm/angel3_orm.dart'),
         ]);
-        deps.add(const MakerDependency('angel3_orm', '^7.0.0'));
+        deps.add(const MakerDependency('angel3_orm', '^9.0.0'));
       }
 
       modelLib.body.addAll([Code("part '${rc.snakeCase}.g.dart';")]);
@@ -126,9 +128,8 @@ class ModelCommand extends Command {
     if (!await modelFile.exists()) await modelFile.create(recursive: true);
 
     await modelFile.writeAsString(
-      DartFormatter(
-        languageVersion: DartFormatter.latestLanguageVersion,
-      ).format(modelLib.accept(DartEmitter()).toString()),
+      DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+          .format(modelLib.accept(DartEmitter()).toString()),
     );
 
     print(

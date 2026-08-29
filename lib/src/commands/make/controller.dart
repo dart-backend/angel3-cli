@@ -1,10 +1,12 @@
 import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:io/ansi.dart';
 import 'package:prompts/prompts.dart' as prompts;
 import 'package:recase/recase.dart';
+
 import '../../util.dart';
 import 'maker.dart';
 
@@ -47,7 +49,7 @@ class ControllerCommand extends Command {
     }
 
     var deps = <MakerDependency>[
-      const MakerDependency('angel3_framework', '^7.0.0'),
+      const MakerDependency('angel3_framework', '^9.0.0'),
     ];
 
     //${pubspec.name}.src.models.${rc.snakeCase}
@@ -55,7 +57,7 @@ class ControllerCommand extends Command {
     var rc = ReCase(name!);
     var controllerLib = Library((controllerLib) {
       if (argResults?['websocket'] as bool) {
-        deps.add(const MakerDependency('angel3_websocket', '^7.0.0'));
+        deps.add(const MakerDependency('angel3_websocket', '^9.0.0'));
         controllerLib.directives.add(
           Directive.import('package:angel3_websocket/server.dart'),
         );
@@ -145,9 +147,8 @@ class ControllerCommand extends Command {
       await controllerFile.create(recursive: true);
     }
     await controllerFile.writeAsString(
-      DartFormatter(
-        languageVersion: DartFormatter.latestLanguageVersion,
-      ).format(controllerLib.accept(DartEmitter()).toString()),
+      DartFormatter(languageVersion: DartFormatter.latestLanguageVersion)
+          .format(controllerLib.accept(DartEmitter()).toString()),
     );
 
     print(

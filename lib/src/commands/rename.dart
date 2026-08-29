@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:args/command_runner.dart';
@@ -230,7 +231,7 @@ class RenamingVisitor extends RecursiveAstVisitor {
 
   @override
   void visitLibraryDirective(LibraryDirective node) {
-    var name = node.name?.name ?? '';
+    var name = node.name?.toSource() ?? '';
 
     if (name.startsWith(oldName)) {
       replace[[node.offset, node.end]] =
@@ -241,7 +242,7 @@ class RenamingVisitor extends RecursiveAstVisitor {
   @override
   void visitPartOfDirective(PartOfDirective node) {
     if (node.libraryName != null) {
-      var name = node.libraryName!.name;
+      var name = node.libraryName!.toSource();
 
       if (name.startsWith(oldName)) {
         replace[[node.offset, node.end]] =

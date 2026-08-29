@@ -1,4 +1,5 @@
 import 'package:args/command_runner.dart';
+
 import 'make/controller.dart';
 import 'make/migration.dart';
 import 'make/model.dart';

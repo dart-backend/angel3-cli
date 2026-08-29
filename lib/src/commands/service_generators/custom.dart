@@ -1,4 +1,5 @@
 import 'package:code_builder/code_builder.dart';
+
 import 'generator.dart';
 
 class CustomServiceGenerator extends ServiceGenerator {

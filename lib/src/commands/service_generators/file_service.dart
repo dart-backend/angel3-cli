@@ -1,6 +1,8 @@
 import 'generator.dart';
+
 import 'package:code_builder/code_builder.dart';
 import 'package:inflection3/inflection3.dart';
+
 import '../make/maker.dart';
 
 class FileServiceGenerator extends ServiceGenerator {
@@ -47,9 +49,9 @@ class FileServiceGenerator extends ServiceGenerator {
   ) {
     library.directives.addAll([Directive.import('package:file/file.dart')]);
     return refer('JsonFileService').newInstance([
-      refer(
-        'dbDirectory',
-      ).property('childFile').call([literal('${pluralize(lower)}_db.json')]),
+      refer('dbDirectory')
+          .property('childFile')
+          .call([literal('${pluralize(lower)}_db.json')]),
     ]);
   }
 }

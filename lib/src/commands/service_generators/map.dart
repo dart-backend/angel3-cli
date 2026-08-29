@@ -1,4 +1,5 @@
 import 'generator.dart';
+
 import 'package:code_builder/code_builder.dart';
 
 class MapServiceGenerator extends ServiceGenerator {
