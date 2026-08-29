@@ -16,7 +16,7 @@ String get homeDirPath =>
 
 Directory get homeDir => Directory(homeDirPath);
 
-Directory get angelDir => Directory(p.join(homeDir.path, '.angel'));
+Directory get angelDir => Directory(p.join(homeDir.path, '.angel3'));
 
 Future<Pubspec> loadPubspec([Directory? directory]) {
   directory ??= Directory.current;

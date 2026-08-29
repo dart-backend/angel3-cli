@@ -145,7 +145,7 @@ class InitCommand extends Command {
   }
 
   Future _cloneRepo(Directory projectDir) async {
-    Directory boilerplateDir = Directory("./empty");
+    //Directory boilerplateDir = Directory("./empty");
     try {
       if (await projectDir.exists()) {
         bool shouldDelete = dcli.confirm(
@@ -170,15 +170,16 @@ class InitCommand extends Command {
 
       // Ultimately, we want a clone of every boilerplate locally on the system.
       var boilerplateRootDir = Directory(p.join(angelDir.path, 'boilerplates'));
-      var boilerplateBasename = p.basenameWithoutExtension(boilerplate.url);
-      if (boilerplate.ref != '') {
-        boilerplateBasename += '.${boilerplate.ref}';
-      }
-      boilerplateDir = Directory(
-        p.join(boilerplateRootDir.path, boilerplateBasename),
-      );
+      //var boilerplateBasename = p.basenameWithoutExtension(boilerplate.url);
+      //if (boilerplate.ref != '') {
+      //  boilerplateBasename += '.${boilerplate.ref}';
+      //}
+
       await boilerplateRootDir.create(recursive: true);
 
+      var boilerplateDir = Directory(
+        p.join(boilerplateRootDir.path, boilerplate.subfolderPath),
+      );
       if (!await boilerplateDir.exists()) {
         if (argResults!['offline'] as bool) {
           throw Exception(
@@ -192,9 +193,12 @@ class InitCommand extends Command {
 
         await downloadAndExtractSubfolder(
           repoUrl: boilerplate.url,
-          subfolderPath: boilerplate.subfolderPath,
           outputDir: boilerplateRootDir,
           ref: boilerplate.ref,
+        );
+      } else {
+        print(
+          'Using cached "${boilerplate.name}" boilerplate from "${boilerplateRootDir.path}".',
         );
       }
     } catch (e) {
@@ -352,12 +356,10 @@ class InitCommand extends Command {
   /// Downloads a specific subfolder from a GitHub repository and extracts it locally.
   ///
   /// [repoUrl] - Repository Url
-  /// [subfolderPath] - Target directory path inside the repo
   /// [outputDir] - Local directory where files should be extracted
   /// [ref] - Branch, tag, or commit hash (defaults to 'main')
   Future<void> downloadAndExtractSubfolder({
     required String repoUrl,
-    required String subfolderPath,
     required Directory outputDir,
     String ref = 'main',
   }) async {
@@ -376,51 +378,33 @@ class InitCommand extends Command {
       );
     }
 
-    // 2. Decode the ZIP archive in memory
+    // Decode the ZIP archive in memory
     final archive = ZipDecoder().decodeBytes(response.bodyBytes);
+    //final extractDir = Directory(outputDir.path);
 
-    // GitHub root folders in zip archives are named like: {owner}-{repo}-{commit_hash}/
-    // Normalize paths for consistent cross-platform matching
-    final normalizedSubfolder = p
-        .normalize(subfolderPath)
-        .replaceAll(r'\', '/');
-
-    print('Extracting target subfolder: $normalizedSubfolder...');
-
-    int extractedCount = 0;
+    // Extract files individually
+    print('Extracting files...');
     for (final file in archive) {
-      // Remove the dynamic root folder prefix ({owner}-{repo}-{hash}/)
-      final pathSegments = p.normalize(file.name).split(Platform.pathSeparator);
-      if (pathSegments.length <= 1) continue;
+      // Split relative path segments
+      final parts = file.name.split('/');
 
-      final relativePath = pathSegments.sublist(1).join('/');
+      // Skip root folder segment
+      if (parts.length > 1) {
+        final relativePath = parts.sublist(1).join('/');
+        if (relativePath.isEmpty) continue;
 
-      // Check if the current entry belongs to the desired subfolder
-      if (relativePath.startsWith(normalizedSubfolder)) {
-        // Strip the subfolder path prefix so contents extract directly into outputDir
-        final targetRelativePath =
-            relativePath.length == normalizedSubfolder.length
-            ? ''
-            : relativePath.substring(normalizedSubfolder.length + 1);
-
-        if (targetRelativePath.isEmpty) continue;
-
-        final destinationPath = p.join(outputDir.path, targetRelativePath);
+        final fullPath = '${outputDir.path}/$relativePath';
 
         if (file.isFile) {
-          final outFile = File(destinationPath);
-          await outFile.create(recursive: true);
-          await outFile.writeAsBytes(file.content as List<int>);
-          extractedCount++;
+          final outFile = File(fullPath);
+          outFile.createSync(recursive: true);
+          outFile.writeAsBytesSync(file.content as List<int>);
         } else {
-          await Directory(destinationPath).create(recursive: true);
+          Directory(fullPath).createSync(recursive: true);
         }
       }
     }
-
-    print(
-      'Extraction complete. $extractedCount file(s) extracted to ${outputDir.path}.',
-    );
+    print('Extraction complete!');
   }
 
   Future _pubGet(Directory projectDir) async {
@@ -462,7 +446,7 @@ const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
   'GraphQL',
   'A starter application with GraphQL support.',
   repoLocation,
-  'templates/basic',
+  'templates/basic_graphql',
   ref: 'master',
 );
 
@@ -486,7 +470,7 @@ const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
   'Basic',
   'A basic starter application.',
   repoLocation,
-  'templates/basic_graphql',
+  'templates/basic',
   ref: 'master',
 );
 
