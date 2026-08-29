@@ -187,14 +187,14 @@ class InitCommand extends Command {
         }
 
         print(
-          'Cloning "${boilerplate.name}" boilerplate from "${boilerplate.url}"...',
+          'Downloading "${boilerplate.name}" boilerplate from "${boilerplate.url}"...',
         );
 
         await downloadAndExtractSubfolder(
-          owner: 'dart-backend',
-          repo: 'boilerplates',
-          subfolderPath: 'templates/${boilerplate.name}',
-          outputDir: boilerplateDir,
+          repoUrl: boilerplate.url,
+          subfolderPath: boilerplate.subfolderPath,
+          outputDir: boilerplateRootDir,
+          ref: boilerplate.ref,
         );
       }
     } catch (e) {
@@ -351,22 +351,18 @@ class InitCommand extends Command {
 
   /// Downloads a specific subfolder from a GitHub repository and extracts it locally.
   ///
-  /// [owner] - GitHub username or organization (e.g., 'flutter')
-  /// [repo] - Repository name (e.g., 'samples')
-  /// [subfolderPath] - Target directory path inside the repo (e.g., 'provider_shopper')
+  /// [repoUrl] - Repository Url
+  /// [subfolderPath] - Target directory path inside the repo
   /// [outputDir] - Local directory where files should be extracted
   /// [ref] - Branch, tag, or commit hash (defaults to 'main')
   Future<void> downloadAndExtractSubfolder({
-    required String owner,
-    required String repo,
+    required String repoUrl,
     required String subfolderPath,
     required Directory outputDir,
     String ref = 'main',
   }) async {
     // 1. Construct GitHub zipball download URL
-    final zipUrl = Uri.parse(
-      'https://api.github.com/repos/$owner/$repo/zipball/$ref',
-    );
+    final zipUrl = Uri.parse('$repoUrl/$ref');
 
     print('Downloading repository archive...');
     final response = await http.get(
@@ -459,33 +455,38 @@ Future preBuild(Directory projectDir) async {
   if (buildCode != 0) throw Exception('Failed to pre-build resources.');
 }
 
-const repoLocation = 'https://github.com/dart-backend';
+const repoLocation =
+    'https://api.github.com/repos/dart-backend/boilerplates/zipball';
 
 const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
   'GraphQL',
   'A starter application with GraphQL support.',
-  '$repoLocation/boilerplates.git',
+  repoLocation,
+  'templates/basic',
   ref: 'master',
 );
 
 const BoilerplateInfo ormBoilerplate = BoilerplateInfo(
   'ORM for PostgreSQL',
   'A starter application with ORM support for PostgreSQL.',
-  '$repoLocation/boilerplates.git',
+  repoLocation,
+  'templates/basic_postgres_orm',
   ref: 'master',
 );
 
 const BoilerplateInfo ormMySqlBoilerplate = BoilerplateInfo(
   'ORM for MySQL/MariaDB',
   'A starter application with ORM support for MySQL/MariaDB.',
-  '$repoLocation/boilerplates.git',
+  repoLocation,
+  'templates/basic_mysql_orm',
   ref: 'master',
 );
 
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
   'Basic',
   'A basic starter application.',
-  '$repoLocation/boilerplates.git',
+  repoLocation,
+  'templates/basic_graphql',
   ref: 'master',
 );
 
@@ -500,11 +501,13 @@ class BoilerplateInfo {
   final String name, description, url;
   final String ref;
   final bool needsPrebuild;
+  final String subfolderPath;
 
   const BoilerplateInfo(
     this.name,
     this.description,
-    this.url, {
+    this.url,
+    this.subfolderPath, {
     this.ref = '',
     this.needsPrebuild = false,
   });
