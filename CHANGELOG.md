@@ -1,5 +1,12 @@
 # Change Log
 
+## 9.0.0
+
+* Required Dart SDK > 3.13.0
+* Updated to `analyzer` 14.x.x
+* Updated dependencies
+* Updated templates
+
 ## 8.4.0
 
 * Required Dart SDK > 3.9
