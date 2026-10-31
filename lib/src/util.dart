@@ -87,9 +87,10 @@ Future<bool> runCommand(String exec, List<String> args) async {
 /// [outputDir] - Local directory the subfolder's contents are extracted into
 /// [ref] - Branch, tag, or commit hash (defaults to 'main')
 ///
-/// Files are extracted into a staging directory next to [outputDir], which
-/// only replaces [outputDir] once extraction succeeds. A failed or interrupted
-/// download therefore never leaves a partial template behind.
+/// The archive is downloaded and extracted into a staging directory next to
+/// [outputDir], which only replaces [outputDir] once extraction succeeds, so a
+/// failed download leaves [outputDir] as it was. Staging directories left by an
+/// interrupted run are removed by the next one.
 Future<void> downloadAndExtractSubfolder({
   required String repoUrl,
   required String subfolder,
@@ -102,16 +103,16 @@ Future<void> downloadAndExtractSubfolder({
   final zipUrl = Uri.parse('$repoUrl/$ref');
   final prefix = p.posix.split(p.posix.normalize(subfolder));
 
-  final tempDir = await Directory.systemTemp.createTemp('angel3_');
-  await outputDir.parent.create(recursive: true);
-  final stagingDir = await outputDir.parent.createTemp(
-    '.${p.basename(outputDir.path)}_',
-  );
+  final parentDir = outputDir.parent;
+  final stagingPrefix = '.${p.basename(outputDir.path)}_';
+  await parentDir.create(recursive: true);
+  await _deleteStaleStagingDirs(parentDir, stagingPrefix);
 
+  final stagingDir = await parentDir.createTemp(stagingPrefix);
   try {
     // 2. Stream the archive to disk instead of buffering it in memory
     print('Downloading repository archive...');
-    final zipFile = File(p.join(tempDir.path, 'repo.zip'));
+    final zipFile = File(p.join(stagingDir.path, 'repo.zip'));
     final client = http.Client();
     try {
       final request = http.Request('GET', zipUrl)
@@ -130,6 +131,7 @@ Future<void> downloadAndExtractSubfolder({
 
     // 3. Extract only the entries under the requested subfolder
     print('Extracting files...');
+    final extractDir = Directory(p.join(stagingDir.path, 'files'));
     final input = InputFileStream(zipFile.path);
     try {
       final archive = ZipDecoder().decodeStream(input);
@@ -145,9 +147,9 @@ Future<void> downloadAndExtractSubfolder({
         if (file.isSymbolicLink) continue;
 
         final fullPath = p.normalize(
-          p.joinAll([stagingDir.path, ...parts.skip(prefix.length)]),
+          p.joinAll([extractDir.path, ...parts.skip(prefix.length)]),
         );
-        if (!p.isWithin(stagingDir.path, fullPath)) {
+        if (!p.isWithin(extractDir.path, fullPath)) {
           throw Exception(
             'Refusing to extract "${file.name}" outside of ${outputDir.path}.',
           );
@@ -171,16 +173,37 @@ Future<void> downloadAndExtractSubfolder({
       await input.close();
     }
 
-    // 4. Swap the finished extraction into place
-    if (await outputDir.exists()) {
-      await outputDir.delete(recursive: true);
+    // 4. Swap the finished extraction into place. The old copy is moved aside
+    // rather than deleted first, so it can be restored if the swap fails.
+    final oldDir = Directory(p.join(stagingDir.path, 'old'));
+    final hadOld = await outputDir.exists();
+    if (hadOld) await outputDir.rename(oldDir.path);
+    try {
+      await extractDir.rename(outputDir.path);
+    } catch (_) {
+      if (hadOld) await oldDir.rename(outputDir.path);
+      rethrow;
     }
-    await stagingDir.rename(outputDir.path);
     print('Extraction complete!');
   } finally {
-    if (await stagingDir.exists()) {
-      await stagingDir.delete(recursive: true);
+    await stagingDir.delete(recursive: true);
+  }
+}
+
+/// Deletes staging directories named [prefix]* in [dir] that are over an hour
+/// old, i.e. left behind by an interrupted download rather than a running one.
+Future<void> _deleteStaleStagingDirs(Directory dir, String prefix) async {
+  final cutoff = DateTime.now().subtract(const Duration(hours: 1));
+  await for (final entity in dir.list()) {
+    if (entity is! Directory || !p.basename(entity.path).startsWith(prefix)) {
+      continue;
     }
-    await tempDir.delete(recursive: true);
+    try {
+      if ((await entity.stat()).modified.isBefore(cutoff)) {
+        await entity.delete(recursive: true);
+      }
+    } on FileSystemException {
+      // Another run may have removed it already.
+    }
   }
 }

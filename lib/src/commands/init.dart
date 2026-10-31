@@ -30,6 +30,12 @@ class InitCommand extends Command {
         negatable: false,
       )
       ..addFlag('pub-get', defaultsTo: true)
+      ..addFlag(
+        'refresh',
+        help:
+            'Download the latest template, even if the cached copy is recent.',
+        negatable: false,
+      )
       ..addOption(
         'project-name',
         abbr: 'n',
@@ -71,25 +77,36 @@ class InitCommand extends Command {
           );
 
     name = ReCase(name).snakeCase;
-    var oldName = (await loadPubspec(projectDir)).name;
-    if (oldName != name) {
-      print('Renaming project from "$oldName" to "$name"...');
-      await renamePubspec(projectDir, oldName, name);
-      await renameDartFiles(projectDir, oldName, name);
+    if (await _hasTemplateName(projectDir)) {
+      if (name != templatePackageName) {
+        print('Renaming project from "$templatePackageName" to "$name"...');
+        await renamePubspec(projectDir, templatePackageName, name);
+        await renameDartFiles(projectDir, templatePackageName, name);
+      }
+    } else {
+      print(
+        yellow.wrap(
+          'Warning: The template\'s package is not named "$templatePackageName", '
+          'so the project was not renamed. Run `angel3 rename` to rename it.',
+        ),
+      );
     }
 
     var pubGetSucceeded = false;
     if (argResults!['pub-get'] != false && argResults!['offline'] == false) {
       print('Now running dart pub get...');
-      pubGetSucceeded = await _pubGet(projectDir);
+      pubGetSucceeded = await _runDart(projectDir, ['pub', 'get']);
     }
 
     if (boilerplate.needsPrebuild) {
       if (pubGetSucceeded) {
-        try {
-          await preBuild(projectDir);
-        } catch (e) {
-          print(yellow.wrap('Warning: $e Run `dart run build_runner build`.'));
+        if (!await _runDart(projectDir, ['run', 'build_runner', 'build'])) {
+          print(
+            yellow.wrap(
+              'Warning: Code generation failed. Run '
+              '`dart run build_runner build` in the project to retry.',
+            ),
+          );
         }
       } else {
         print(
@@ -186,19 +203,27 @@ class InitCommand extends Command {
         p.join(boilerplateRootDir.path, boilerplate.subfolderPath),
       );
       var isCached = await boilerplateDir.exists();
+      var isRecent =
+          isCached &&
+          DateTime.now()
+                  .difference((await boilerplateDir.stat()).modified)
+                  .compareTo(templateCacheMaxAge) <
+              0;
 
-      if (argResults!['offline'] as bool) {
+      if (argResults!['offline'] as bool ||
+          (isRecent && !(argResults!['refresh'] as bool))) {
         if (!isCached) {
           throw Exception(
             '--offline was selected, but the "${boilerplate.name}" template has not yet been downloaded.',
           );
         }
         print(
-          'Using cached "${boilerplate.name}" template from "${boilerplateDir.path}".',
+          'Using cached "${boilerplate.name}" template from "${boilerplateDir.path}". '
+          'Run with --refresh to download the latest version.',
         );
       } else {
-        // Always fetch the latest template when online, falling back to the
-        // cached copy if the download fails.
+        // Fetch the latest template, falling back to the cached copy if the
+        // download fails.
         print(
           'Downloading "${boilerplate.name}" template from "${boilerplate.url}"...',
         );
@@ -230,38 +255,33 @@ class InitCommand extends Command {
     }
   }
 
-  Future<bool> _pubGet(Directory projectDir) async {
-    var dartPath = "dart";
-    print(darkGray.wrap('Running "$dartPath"...'));
-    print(darkGray.wrap('\$ $dartPath pub get'));
+  /// Whether the copied template's package still has its expected name.
+  Future<bool> _hasTemplateName(Directory projectDir) async {
+    try {
+      return (await loadPubspec(projectDir)).name == templatePackageName;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Runs `dart [args]` in [projectDir], returning whether it succeeded.
+  Future<bool> _runDart(Directory projectDir, List<String> args) async {
+    print(darkGray.wrap('\$ dart ${args.join(' ')}'));
     var dart = await Process.start(
-      dartPath,
-      ['pub', 'get'],
+      'dart',
+      args,
       workingDirectory: projectDir.absolute.path,
       mode: ProcessStartMode.inheritStdio,
     );
-    var code = await dart.exitCode;
-    print('Dart process exited with code $code');
-    return code == 0;
+    return await dart.exitCode == 0;
   }
 }
 
-Future<void> preBuild(Directory projectDir) async {
-  // Run build
-  // print('Running `dart run build_runner build`...');
-  print(darkGray.wrap('\$ dart run build_runner build'));
+/// The package name of every boilerplate template, replaced by `init`.
+const templatePackageName = 'starter_app';
 
-  var build = await Process.start(
-    "dart",
-    ['run', 'build_runner', 'build'],
-    workingDirectory: projectDir.absolute.path,
-    mode: ProcessStartMode.inheritStdio,
-  );
-
-  var buildCode = await build.exitCode;
-
-  if (buildCode != 0) throw Exception('Failed to pre-build resources.');
-}
+/// How long a downloaded template is reused before `init` downloads it again.
+const templateCacheMaxAge = Duration(days: 1);
 
 const repoLocation =
     'https://api.github.com/repos/dart-backend/boilerplates/zipball';

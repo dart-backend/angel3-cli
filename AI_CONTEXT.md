@@ -33,10 +33,10 @@ Registered in `bin/angel3.dart`. Each is an `args` `Command` in `lib/src/command
 
 1. If the target directory exists, the user is asked (`dcli.confirm`) before it's cleared.
 2. The user picks a template from `dcli.menu`. Each template is a `BoilerplateInfo` constant: name, description, zipball URL (`repoLocation`, the GitHub API zipball of `dart-backend/boilerplates`), `subfolderPath` (e.g. `templates/basic_postgres_orm`), `ref` (`master`) and `needsPrebuild`.
-3. Online, `downloadAndExtractSubfolder` streams the zipball to a temp file, extracts only `subfolderPath` into a staging folder (rejecting paths that escape it), and swaps that into `~/.angel3/boilerplates/<subfolderPath>`. If the download fails, the cached copy is used. With `--offline`, only the cache is used.
+3. A cached template under `~/.angel3/boilerplates/<subfolderPath>` that is newer than `templateCacheMaxAge` (one day) is reused, unless `--refresh` is given. With `--offline`, only the cache is used. Otherwise `downloadAndExtractSubfolder` streams the zipball into a hidden staging folder next to the cache (`.<name>_XXXX`), extracts only `subfolderPath` (rejecting paths that escape it), and swaps it into place. The old copy is moved aside first and restored if the swap fails. If the download fails, the cached copy is used. Staging folders over an hour old, left behind by an interrupted run, are deleted by the next download.
 4. The template is copied into the project (`copyDirectory`, skipping `.git`).
 5. New JWT secrets are written (`KeyCommand.changeSecret`).
-6. The package is renamed from the template's `pubspec.yaml` name (`starter_app`) to `--project-name`, or to the snake_cased directory name (`renamePubspec`, `renameDartFiles`).
+6. The package is renamed from `templatePackageName` (`starter_app`) to `--project-name`, or to the snake_cased directory name (`renamePubspec`, `renameDartFiles`). If the template's `pubspec.yaml` is missing, unreadable or has a different name, the rename is skipped with a warning. The rename replaces substrings in config files, so it is only safe with a distinctive name like `starter_app`.
 7. `dart pub get` runs, unless `--offline` or `--no-pub-get` is given.
 8. For templates with `needsPrebuild: true` (GraphQL and both ORMs), `dart run build_runner build` runs if `pub get` succeeded. A failure is only a warning.
 
@@ -67,9 +67,9 @@ Registered in `bin/angel3.dart`. Each is an `args` `Command` in `lib/src/command
 
 ## Gotchas
 
-- **The CLI is coupled to the boilerplates repo.** It relies on the template folder names, the `starter_app` package name, the single-line `jwt_secret:` entries, and `master` as the download ref. Check the boilerplates repo before changing any of these, on either side.
+- **The CLI is coupled to the boilerplates repo.** It relies on the template folder names, the `starter_app` package name (`templatePackageName`; any other name skips the rename), the single-line `jwt_secret:` entries, and `master` as the download ref. Check the boilerplates repo before changing any of these, on either side.
 - **`MakerDependency` versions are hardcoded** in `make/*.dart`. Keep them on the same Angel3 major as the boilerplates templates (currently `^10.0.0`, with `angel3_serialize_generator: ^10.0.1`), and bump them on every Angel3 major release.
 - The template cache lives in `~/.angel3/boilerplates` (`angelDir` in `util.dart`; `HOME`, then `USERPROFILE`). Older releases used `~/.angel`.
 - `install.dart`, `rename.dart` and `maker.dart` have large commented-out blocks waiting on [pubspec_parse#17](https://github.com/dart-lang/pubspec_parse/issues/17). Leave them unless you're asked to remove them.
 - `archived/` holds old logo files and isn't part of the package. `.pubignore` excludes only `.vscode`.
-- The GitHub zipball goes through the unauthenticated GitHub API, which is rate-limited (60 requests an hour per IP). That's why the cache fallback matters.
+- The GitHub zipball goes through the unauthenticated GitHub API, which is rate-limited (60 requests an hour per IP). That's why templates are cached for a day and the download falls back to the cache.
