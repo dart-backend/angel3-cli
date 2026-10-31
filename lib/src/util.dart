@@ -80,56 +80,107 @@ Future<bool> runCommand(String exec, List<String> args) async {
   }
 }
 
-/// Downloads a specific subfolder from a GitHub repository and extracts it locally.
+/// Downloads [subfolder] of a GitHub repository and extracts it into [outputDir].
 ///
-/// [repoUrl] - Repository Url
-/// [outputDir] - Local directory where files should be extracted
+/// [repoUrl] - Repository zipball Url
+/// [subfolder] - Path inside the repository to extract, e.g. `templates/basic`
+/// [outputDir] - Local directory the subfolder's contents are extracted into
 /// [ref] - Branch, tag, or commit hash (defaults to 'main')
+///
+/// Files are extracted into a staging directory next to [outputDir], which
+/// only replaces [outputDir] once extraction succeeds. A failed or interrupted
+/// download therefore never leaves a partial template behind.
 Future<void> downloadAndExtractSubfolder({
   required String repoUrl,
+  required String subfolder,
   required Directory outputDir,
   String ref = 'main',
 }) async {
+  if (ref.isEmpty) ref = 'main';
+
   // 1. Construct GitHub zipball download URL
   final zipUrl = Uri.parse('$repoUrl/$ref');
+  final prefix = p.posix.split(p.posix.normalize(subfolder));
 
-  print('Downloading repository archive...');
-  final response = await http.get(
-    zipUrl,
-    headers: {'Accept': 'application/vnd.github.v3+json'},
+  final tempDir = await Directory.systemTemp.createTemp('angel3_');
+  await outputDir.parent.create(recursive: true);
+  final stagingDir = await outputDir.parent.createTemp(
+    '.${p.basename(outputDir.path)}_',
   );
 
-  if (response.statusCode != 200) {
-    throw Exception(
-      'Failed to download archive: ${response.statusCode} - ${response.reasonPhrase}',
-    );
-  }
+  try {
+    // 2. Stream the archive to disk instead of buffering it in memory
+    print('Downloading repository archive...');
+    final zipFile = File(p.join(tempDir.path, 'repo.zip'));
+    final client = http.Client();
+    try {
+      final request = http.Request('GET', zipUrl)
+        ..headers['Accept'] = 'application/vnd.github+json';
+      final response = await client.send(request);
 
-  // Decode the ZIP archive in memory
-  final archive = ZipDecoder().decodeBytes(response.bodyBytes);
-  //final extractDir = Directory(outputDir.path);
-
-  // Extract files individually
-  print('Extracting files...');
-  for (final file in archive) {
-    // Split relative path segments
-    final parts = file.name.split('/');
-
-    // Skip root folder segment
-    if (parts.length > 1) {
-      final relativePath = parts.sublist(1).join('/');
-      if (relativePath.isEmpty) continue;
-
-      final fullPath = '${outputDir.path}/$relativePath';
-
-      if (file.isFile) {
-        final outFile = File(fullPath);
-        outFile.createSync(recursive: true);
-        outFile.writeAsBytesSync(file.content as List<int>);
-      } else {
-        Directory(fullPath).createSync(recursive: true);
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Failed to download archive: ${response.statusCode} - ${response.reasonPhrase}',
+        );
       }
+      await response.stream.pipe(zipFile.openWrite());
+    } finally {
+      client.close();
     }
+
+    // 3. Extract only the entries under the requested subfolder
+    print('Extracting files...');
+    final input = InputFileStream(zipFile.path);
+    try {
+      final archive = ZipDecoder().decodeStream(input);
+      var found = false;
+
+      for (final file in archive) {
+        // Skip the root folder segment GitHub adds, e.g. `owner-repo-sha/`
+        final parts = p.posix.split(file.name).skip(1).toList();
+        if (parts.length <= prefix.length ||
+            parts.take(prefix.length).join('/') != prefix.join('/')) {
+          continue;
+        }
+        if (file.isSymbolicLink) continue;
+
+        final fullPath = p.normalize(
+          p.joinAll([stagingDir.path, ...parts.skip(prefix.length)]),
+        );
+        if (!p.isWithin(stagingDir.path, fullPath)) {
+          throw Exception(
+            'Refusing to extract "${file.name}" outside of ${outputDir.path}.',
+          );
+        }
+
+        found = true;
+        if (file.isFile) {
+          final outFile = File(fullPath);
+          await outFile.create(recursive: true);
+          await outFile.writeAsBytes(file.content);
+        } else {
+          await Directory(fullPath).create(recursive: true);
+        }
+      }
+      await archive.clear();
+
+      if (!found) {
+        throw Exception('"$subfolder" was not found in $zipUrl.');
+      }
+    } finally {
+      await input.close();
+    }
+
+    // 4. Swap the finished extraction into place
+    if (await outputDir.exists()) {
+      await outputDir.delete(recursive: true);
+    }
+    await stagingDir.rename(outputDir.path);
+    print('Extraction complete!');
+  } finally {
+    if (await stagingDir.exists()) {
+      await stagingDir.delete(recursive: true);
+    }
+    await tempDir.delete(recursive: true);
   }
-  print('Extraction complete!');
 }

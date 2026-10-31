@@ -48,9 +48,8 @@ class InitCommand extends Command {
       argResults!.rest.isEmpty ? '.' : argResults!.rest[0],
     );
     print('Creating new Angel3 project in ${projectDir.absolute.path}...');
-    await _cloneRepo(projectDir);
+    var boilerplate = await _cloneRepo(projectDir);
 
-    await preBuild(projectDir);
     var secret = rs.randomAlphaNumeric(32);
     print('Generated new development JWT secret: $secret');
     await _key.changeSecret(
@@ -72,14 +71,34 @@ class InitCommand extends Command {
           );
 
     name = ReCase(name).snakeCase;
-    print('Renaming project from "starter_app" to "$name"...');
-    await renamePubspec(projectDir, 'starter_app', name);
-    await renameDartFiles(projectDir, 'starter_app', name);
-    // Renaming executable files
+    var oldName = (await loadPubspec(projectDir)).name;
+    if (oldName != name) {
+      print('Renaming project from "$oldName" to "$name"...');
+      await renamePubspec(projectDir, oldName, name);
+      await renameDartFiles(projectDir, oldName, name);
+    }
 
+    var pubGetSucceeded = false;
     if (argResults!['pub-get'] != false && argResults!['offline'] == false) {
       print('Now running dart pub get...');
-      await _pubGet(projectDir);
+      pubGetSucceeded = await _pubGet(projectDir);
+    }
+
+    if (boilerplate.needsPrebuild) {
+      if (pubGetSucceeded) {
+        try {
+          await preBuild(projectDir);
+        } catch (e) {
+          print(yellow.wrap('Warning: $e Run `dart run build_runner build`.'));
+        }
+      } else {
+        print(
+          yellow.wrap(
+            'Skipped code generation. Run `dart pub get` and then '
+            '`dart run build_runner build`.',
+          ),
+        );
+      }
     }
 
     print(green.wrap('$checkmark Successfully initialized Angel3 project.'));
@@ -138,8 +157,7 @@ class InitCommand extends Command {
     }
   }
 
-  Future _cloneRepo(Directory projectDir) async {
-    Directory boilerplateDir = Directory("./empty");
+  Future<BoilerplateInfo> _cloneRepo(Directory projectDir) async {
     try {
       if (await projectDir.exists()) {
         bool shouldDelete = dcli.confirm(
@@ -164,43 +182,47 @@ class InitCommand extends Command {
 
       // Save the templates locally on the system.
       var boilerplateRootDir = Directory(p.join(angelDir.path, 'boilerplates'));
-      await boilerplateRootDir.create(recursive: true);
-      boilerplateDir = Directory(
+      var boilerplateDir = Directory(
         p.join(boilerplateRootDir.path, boilerplate.subfolderPath),
       );
-      if (!await boilerplateDir.exists()) {
-        if (argResults!['offline'] as bool) {
+      var isCached = await boilerplateDir.exists();
+
+      if (argResults!['offline'] as bool) {
+        if (!isCached) {
           throw Exception(
             '--offline was selected, but the "${boilerplate.name}" template has not yet been downloaded.',
           );
         }
-
+        print(
+          'Using cached "${boilerplate.name}" template from "${boilerplateDir.path}".',
+        );
+      } else {
+        // Always fetch the latest template when online, falling back to the
+        // cached copy if the download fails.
         print(
           'Downloading "${boilerplate.name}" template from "${boilerplate.url}"...',
         );
-
-        await downloadAndExtractSubfolder(
-          repoUrl: boilerplate.url,
-          outputDir: boilerplateRootDir,
-          ref: boilerplate.ref,
-        );
-      } else {
-        print(
-          'Using cached "${boilerplate.name}" template from "${boilerplateRootDir.path}".',
-        );
+        try {
+          await downloadAndExtractSubfolder(
+            repoUrl: boilerplate.url,
+            subfolder: boilerplate.subfolderPath,
+            outputDir: boilerplateDir,
+            ref: boilerplate.ref,
+          );
+        } catch (e) {
+          if (!isCached) rethrow;
+          print(
+            yellow.wrap(
+              'Warning: $e\nUsing cached "${boilerplate.name}" template from "${boilerplateDir.path}".',
+            ),
+          );
+        }
       }
 
       // Copy the required template into the given directory.
       await copyDirectory(boilerplateDir, projectDir);
-
-      if (boilerplate.needsPrebuild) {
-        await preBuild(projectDir).catchError((_) => null);
-      }
+      return boilerplate;
     } catch (e) {
-      if (await boilerplateDir.exists()) {
-        await boilerplateDir.delete(recursive: true);
-      }
-
       if (e is! String) {
         print(dcli.red('$ballot Could not initialize Angel3 project.'));
       }
@@ -208,7 +230,7 @@ class InitCommand extends Command {
     }
   }
 
-  Future<void> _pubGet(Directory projectDir) async {
+  Future<bool> _pubGet(Directory projectDir) async {
     var dartPath = "dart";
     print(darkGray.wrap('Running "$dartPath"...'));
     print(darkGray.wrap('\$ $dartPath pub get'));
@@ -220,6 +242,7 @@ class InitCommand extends Command {
     );
     var code = await dart.exitCode;
     print('Dart process exited with code $code');
+    return code == 0;
   }
 }
 
@@ -249,6 +272,7 @@ const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
   repoLocation,
   'templates/basic_graphql',
   ref: 'master',
+  needsPrebuild: true,
 );
 
 const BoilerplateInfo ormBoilerplate = BoilerplateInfo(
@@ -257,6 +281,7 @@ const BoilerplateInfo ormBoilerplate = BoilerplateInfo(
   repoLocation,
   'templates/basic_postgres_orm',
   ref: 'master',
+  needsPrebuild: true,
 );
 
 const BoilerplateInfo ormMySqlBoilerplate = BoilerplateInfo(
@@ -265,6 +290,7 @@ const BoilerplateInfo ormMySqlBoilerplate = BoilerplateInfo(
   repoLocation,
   'templates/basic_mysql_orm',
   ref: 'master',
+  needsPrebuild: true,
 );
 
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
@@ -293,7 +319,7 @@ class BoilerplateInfo {
     this.description,
     this.url,
     this.subfolderPath, {
-    this.ref = '',
+    this.ref = 'master',
     this.needsPrebuild = false,
   });
 
