@@ -32,8 +32,7 @@ class InitCommand extends Command {
       ..addFlag('pub-get', defaultsTo: true)
       ..addFlag(
         'refresh',
-        help:
-            'Download the latest template, even if the cached copy is recent.',
+        help: 'Download the latest templates, even if the cached ones are recent.',
         negatable: false,
       )
       ..addOption(
@@ -347,6 +346,20 @@ const BoilerplateInfo ormMySqlBoilerplate = BoilerplateInfo(
   needsPrebuild: true,
 );
 
+const BoilerplateInfo mongoBoilerplate = BoilerplateInfo(
+  'MongoDB',
+  'A starter application with a REST API of a MongoDB collection.',
+  repoLocation,
+  'templates/basic_mongo',
+);
+
+const BoilerplateInfo rethinkDbBoilerplate = BoilerplateInfo(
+  'RethinkDB',
+  'A starter application with a REST and WebSocket API of a RethinkDB table.',
+  repoLocation,
+  'templates/basic_rethinkdb',
+);
+
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
   'Basic',
   'A basic starter application.',
@@ -359,6 +372,8 @@ const List<BoilerplateInfo> boilerplates = [
   ormBoilerplate,
   ormMySqlBoilerplate,
   graphQLBoilerplate,
+  mongoBoilerplate,
+  rethinkDbBoilerplate,
 ];
 
 class BoilerplateInfo {
