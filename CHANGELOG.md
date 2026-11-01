@@ -1,5 +1,18 @@
 # Change Log
 
+## 10.1.0
+
+### New in 10.1.0
+
+* **Init:** `angel3 init` offers a MongoDB template, a REST API of a MongoDB collection with `angel3_mongo`
+* **Init:** `angel3 init` offers a RethinkDB template, a REST and WebSocket API of a RethinkDB table with `angel3_rethinkdb`, which pushes its changes to clients
+* **Init:** `angel3 init` offers a Sembast template, a REST API of a store in Sembast, an embedded database in one file, with `angel3_sembast`
+
+### Fixes in 10.1.0
+
+* **Init:** The help of `--refresh` says that it downloads the latest templates, as `angel3 init` downloads all of them at once
+* **Docs:** The README describes what `angel3 init` does, its templates and options, and every command, and that `angel3 rename` is not available yet
+
 ## 10.0.0
 
 ### New in 10.0.0
