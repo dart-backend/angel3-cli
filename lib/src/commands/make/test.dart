@@ -49,8 +49,8 @@ class TestCommand extends Command {
     }
 
     var deps = <MakerDependency>[
-      const MakerDependency('angel3_framework', '^9.0.0'),
-      const MakerDependency('angel3_test', '^9.0.0', dev: true),
+      const MakerDependency('angel3_framework', '^10.0.0'),
+      const MakerDependency('angel3_test', '^10.0.0', dev: true),
       const MakerDependency('test', '^1.31.0', dev: true),
     ];
 
