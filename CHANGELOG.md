@@ -6,6 +6,7 @@
 
 * **Init:** `angel3 init` offers a MongoDB template, a REST API of a MongoDB collection with `angel3_mongo`
 * **Init:** `angel3 init` offers a RethinkDB template, a REST and WebSocket API of a RethinkDB table with `angel3_rethinkdb`, which pushes its changes to clients
+* **Init:** `angel3 init` offers a Sembast template, a REST API of a store in Sembast, an embedded database in one file, with `angel3_sembast`
 
 ### Fixes in 10.1.0
 

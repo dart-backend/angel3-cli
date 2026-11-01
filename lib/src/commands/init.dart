@@ -360,6 +360,13 @@ const BoilerplateInfo rethinkDbBoilerplate = BoilerplateInfo(
   'templates/basic_rethinkdb',
 );
 
+const BoilerplateInfo sembastBoilerplate = BoilerplateInfo(
+  'Sembast',
+  'A starter application with a REST API of a Sembast store, in one file.',
+  repoLocation,
+  'templates/basic_sembast',
+);
+
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
   'Basic',
   'A basic starter application.',
@@ -374,6 +381,7 @@ const List<BoilerplateInfo> boilerplates = [
   graphQLBoilerplate,
   mongoBoilerplate,
   rethinkDbBoilerplate,
+  sembastBoilerplate,
 ];
 
 class BoilerplateInfo {

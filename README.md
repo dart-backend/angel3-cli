@@ -42,6 +42,7 @@ angel3 init my_app
 | GraphQL | A to-do list served over GraphQL, stored in PostgreSQL with the Angel3 ORM |
 | MongoDB | The basic application, with a REST API of a MongoDB collection (`angel3_mongo`) |
 | RethinkDB | The basic application, with a REST and WebSocket API of a RethinkDB table, which pushes its changefeed to clients (`angel3_rethinkdb`, `angel3_websocket`) |
+| Sembast | The basic application, with a REST API of a store in Sembast, a database in one file that needs no server (`angel3_sembast`) |
 
 Then follow the `README.md` of the new project to set up its database, if any, and run it.
 
