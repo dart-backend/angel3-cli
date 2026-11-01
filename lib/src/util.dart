@@ -80,51 +80,68 @@ Future<bool> runCommand(String exec, List<String> args) async {
   }
 }
 
+/// How long a download may wait for GitHub to respond, or for the next part of
+/// the archive, before it fails.
+const downloadTimeout = Duration(seconds: 30);
+
 /// Downloads [subfolder] of a GitHub repository and extracts it into [outputDir].
 ///
 /// [repoUrl] - Repository zipball Url
-/// [subfolder] - Path inside the repository to extract, e.g. `templates/basic`
+/// [subfolder] - Path inside the repository to extract, e.g. `templates`
 /// [outputDir] - Local directory the subfolder's contents are extracted into
-/// [ref] - Branch, tag, or commit hash (defaults to 'main')
+/// [ref] - Branch, tag, or commit hash
 ///
-/// The archive is downloaded and extracted into a staging directory next to
-/// [outputDir], which only replaces [outputDir] once extraction succeeds, so a
-/// failed download leaves [outputDir] as it was. Staging directories left by an
-/// interrupted run are removed by the next one.
+/// The archive is downloaded and extracted into a staging directory of
+/// [outputDir] (see [stagingRootOf]), which only replaces [outputDir] once
+/// extraction succeeds, so a failed download leaves [outputDir] as it was.
+/// Staging directories left by an interrupted run are removed by the next one,
+/// which first restores [outputDir] from one if the run was interrupted while
+/// swapping it (see [recoverInterruptedSwap]).
 Future<void> downloadAndExtractSubfolder({
   required String repoUrl,
   required String subfolder,
   required Directory outputDir,
-  String ref = 'main',
+  required String ref,
 }) async {
-  if (ref.isEmpty) ref = 'main';
-
   // 1. Construct GitHub zipball download URL
   final zipUrl = Uri.parse('$repoUrl/$ref');
   final prefix = p.posix.split(p.posix.normalize(subfolder));
 
-  final parentDir = outputDir.parent;
-  final stagingPrefix = '.${p.basename(outputDir.path)}_';
-  await parentDir.create(recursive: true);
-  await _deleteStaleStagingDirs(parentDir, stagingPrefix);
+  final stagingRoot = stagingRootOf(outputDir);
+  await stagingRoot.create(recursive: true);
+  await recoverInterruptedSwap(outputDir);
+  await _deleteStaleStagingDirs(stagingRoot);
 
-  final stagingDir = await parentDir.createTemp(stagingPrefix);
+  final stagingDir = await stagingRoot.createTemp();
   try {
-    // 2. Stream the archive to disk instead of buffering it in memory
+    // 2. Stream the archive to disk instead of buffering it in memory. The
+    // timeouts keep a stalled connection from hanging the download.
     print('Downloading repository archive...');
     final zipFile = File(p.join(stagingDir.path, 'repo.zip'));
     final client = http.Client();
     try {
       final request = http.Request('GET', zipUrl)
         ..headers['Accept'] = 'application/vnd.github+json';
-      final response = await client.send(request);
+      final response = await client.send(request).timeout(downloadTimeout);
 
       if (response.statusCode != 200) {
         throw Exception(
           'Failed to download archive: ${response.statusCode} - ${response.reasonPhrase}',
         );
       }
-      await response.stream.pipe(zipFile.openWrite());
+      await response.stream
+          .timeout(
+            downloadTimeout,
+            onTimeout: (sink) => sink
+              ..addError(
+                TimeoutException(
+                  'The download of $zipUrl stalled.',
+                  downloadTimeout,
+                ),
+              )
+              ..close(),
+          )
+          .pipe(zipFile.openWrite());
     } finally {
       client.close();
     }
@@ -174,8 +191,9 @@ Future<void> downloadAndExtractSubfolder({
     }
 
     // 4. Swap the finished extraction into place. The old copy is moved aside
-    // rather than deleted first, so it can be restored if the swap fails.
-    final oldDir = Directory(p.join(stagingDir.path, 'old'));
+    // rather than deleted first, so it can be restored if the swap fails, or
+    // by [recoverInterruptedSwap] if the process is killed during it.
+    final oldDir = Directory(p.join(stagingDir.path, _oldDirName));
     final hadOld = await outputDir.exists();
     if (hadOld) await outputDir.rename(oldDir.path);
     try {
@@ -186,18 +204,58 @@ Future<void> downloadAndExtractSubfolder({
     }
     print('Extraction complete!');
   } finally {
-    await stagingDir.delete(recursive: true);
+    try {
+      await stagingDir.delete(recursive: true);
+    } on FileSystemException {
+      // A file may still be locked, e.g. by a virus scanner on Windows. The
+      // next download removes the directory once it is stale.
+    }
   }
 }
 
-/// Deletes staging directories named [prefix]* in [dir] that are over an hour
-/// old, i.e. left behind by an interrupted download rather than a running one.
-Future<void> _deleteStaleStagingDirs(Directory dir, String prefix) async {
-  final cutoff = DateTime.now().subtract(const Duration(hours: 1));
-  await for (final entity in dir.list()) {
-    if (entity is! Directory || !p.basename(entity.path).startsWith(prefix)) {
-      continue;
+/// Name of the directory a staging directory keeps the replaced copy in.
+const _oldDirName = 'old';
+
+/// The directory of the staging directories of downloads into [outputDir]: one
+/// of its own, so that cleaning it up never touches those of another one.
+Directory stagingRootOf(Directory outputDir) => Directory(
+  p.join(outputDir.parent.path, '.staging', p.basename(outputDir.path)),
+);
+
+/// Restores [outputDir] from the copy a download moved aside, if the download
+/// was interrupted after moving it aside and before moving the new one in.
+Future<void> recoverInterruptedSwap(Directory outputDir) async {
+  final stagingRoot = stagingRootOf(outputDir);
+  if (await outputDir.exists() || !await stagingRoot.exists()) return;
+
+  // The most recently replaced copy, if more than one was left.
+  Directory? newest;
+  DateTime? newestModified;
+  await for (final entity in stagingRoot.list()) {
+    if (entity is! Directory) continue;
+    final old = Directory(p.join(entity.path, _oldDirName));
+    if (!await old.exists()) continue;
+    final modified = (await old.stat()).modified;
+    if (newestModified == null || modified.isAfter(newestModified)) {
+      newest = old;
+      newestModified = modified;
     }
+  }
+  if (newest == null) return;
+  await newest.rename(outputDir.path);
+  try {
+    await newest.parent.delete(recursive: true);
+  } on FileSystemException {
+    // Removed once it is stale instead.
+  }
+}
+
+/// Deletes the staging directories in [stagingRoot] that are over an hour old,
+/// i.e. left behind by an interrupted download rather than a running one.
+Future<void> _deleteStaleStagingDirs(Directory stagingRoot) async {
+  final cutoff = DateTime.now().subtract(const Duration(hours: 1));
+  await for (final entity in stagingRoot.list()) {
+    if (entity is! Directory) continue;
     try {
       if ((await entity.stat()).modified.isBefore(cutoff)) {
         await entity.delete(recursive: true);

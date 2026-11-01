@@ -5,14 +5,19 @@
 ### New in 10.0.0
 
 * **Make:** `angel3 make` suggests Angel3 10.x.x (`^10.0.0`) dependencies
-* **Init:** `angel3 init` downloads only the selected template, and reuses a downloaded template for a day. Use `--refresh` to download the latest version
+* **Init:** `angel3 init` downloads all the templates at once, and reuses them for a day. Use `--refresh` to download the latest version
 * **Init:** When the download fails, `angel3 init` uses the cached template
 * **Init:** `angel3 init` runs `build_runner` only for the templates that need it, after `pub get`, and skips it with `--offline` or `--no-pub-get`. A failed build is a warning
 
 ### Fixes in 10.0.0
 
 * **Init:** The JWT secrets are generated even when a later step fails
-* **Init:** A failed or interrupted download no longer leaves a partial template in the cache, or removes the cached one
+* **Init:** A failed or interrupted download no longer leaves a partial template in the cache, or removes the cached one. A cache left half-replaced by an interrupted download is restored
+* **Init:** A download that stalls fails after 30 seconds, and uses the cached template if there is one, instead of hanging
+* **Init:** An existing project directory is only deleted once the template is available, so a failed download or `--offline` without a cache no longer deletes it
+* **Init:** A failed `dart pub get` is reported for every template
+* **Init:** A cached template with a modification time in the future is downloaded again, instead of being reused indefinitely
+* **Init:** A `pubspec.yaml` that `pubspec_parse` cannot read is still renamed, and an error reading it is reported instead of a warning that the package is misnamed
 * **Init:** A failure no longer deletes a directory named `empty` in the current directory
 * **Init:** Archive entries can no longer be extracted outside of the template cache
 * **Init:** A template whose package is not named `starter_app` is left unrenamed, with a warning, instead of failing

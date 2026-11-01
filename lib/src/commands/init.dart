@@ -96,6 +96,13 @@ class InitCommand extends Command {
     if (argResults!['pub-get'] != false && argResults!['offline'] == false) {
       print('Now running dart pub get...');
       pubGetSucceeded = await _runDart(projectDir, ['pub', 'get']);
+      if (!pubGetSucceeded) {
+        print(
+          yellow.wrap(
+            'Warning: `dart pub get` failed. Run it in the project to retry.',
+          ),
+        );
+      }
     }
 
     if (boilerplate.needsPrebuild) {
@@ -176,18 +183,13 @@ class InitCommand extends Command {
 
   Future<BoilerplateInfo> _cloneRepo(Directory projectDir) async {
     try {
+      var overwrite = false;
       if (await projectDir.exists()) {
-        bool shouldDelete = dcli.confirm(
+        overwrite = dcli.confirm(
           "Directory '${projectDir.absolute.path}' already exists. Overwrite it?",
         );
-
-        if (!shouldDelete) {
+        if (!overwrite) {
           throw 'Chose not to overwrite existing directory.';
-        } else if (projectDir.absolute.uri.normalizePath().toFilePath() !=
-            Directory.current.absolute.uri.normalizePath().toFilePath()) {
-          await projectDir.delete(recursive: true);
-        } else {
-          await _deleteRecursive(projectDir, false);
         }
       }
 
@@ -197,50 +199,16 @@ class InitCommand extends Command {
         defaultOption: basicBoilerplate,
       );
 
-      // Save the templates locally on the system.
-      var boilerplateRootDir = Directory(p.join(angelDir.path, 'boilerplates'));
-      var boilerplateDir = Directory(
-        p.join(boilerplateRootDir.path, boilerplate.subfolderPath),
-      );
-      var isCached = await boilerplateDir.exists();
-      var isRecent =
-          isCached &&
-          DateTime.now()
-                  .difference((await boilerplateDir.stat()).modified)
-                  .compareTo(templateCacheMaxAge) <
-              0;
+      // Find the template before deleting anything, so that the existing
+      // directory is kept when no template is available.
+      var boilerplateDir = await _fetchTemplate(boilerplate);
 
-      if (argResults!['offline'] as bool ||
-          (isRecent && !(argResults!['refresh'] as bool))) {
-        if (!isCached) {
-          throw Exception(
-            '--offline was selected, but the "${boilerplate.name}" template has not yet been downloaded.',
-          );
-        }
-        print(
-          'Using cached "${boilerplate.name}" template from "${boilerplateDir.path}". '
-          'Run with --refresh to download the latest version.',
-        );
-      } else {
-        // Fetch the latest template, falling back to the cached copy if the
-        // download fails.
-        print(
-          'Downloading "${boilerplate.name}" template from "${boilerplate.url}"...',
-        );
-        try {
-          await downloadAndExtractSubfolder(
-            repoUrl: boilerplate.url,
-            subfolder: boilerplate.subfolderPath,
-            outputDir: boilerplateDir,
-            ref: boilerplate.ref,
-          );
-        } catch (e) {
-          if (!isCached) rethrow;
-          print(
-            yellow.wrap(
-              'Warning: $e\nUsing cached "${boilerplate.name}" template from "${boilerplateDir.path}".',
-            ),
-          );
+      if (overwrite) {
+        if (projectDir.absolute.uri.normalizePath().toFilePath() !=
+            Directory.current.absolute.uri.normalizePath().toFilePath()) {
+          await projectDir.delete(recursive: true);
+        } else {
+          await _deleteRecursive(projectDir, false);
         }
       }
 
@@ -255,13 +223,82 @@ class InitCommand extends Command {
     }
   }
 
-  /// Whether the copied template's package still has its expected name.
-  Future<bool> _hasTemplateName(Directory projectDir) async {
-    try {
-      return (await loadPubspec(projectDir)).name == templatePackageName;
-    } catch (_) {
-      return false;
+  /// The cached directory of [boilerplate], downloading the templates first
+  /// unless the cache is recent, or `--offline` is given.
+  ///
+  /// All the templates are downloaded together, as they come in one archive of
+  /// the repository, and cached in `~/.angel3/boilerplates/templates`.
+  Future<Directory> _fetchTemplate(BoilerplateInfo boilerplate) async {
+    var boilerplateRootDir = Directory(p.join(angelDir.path, 'boilerplates'));
+    var templatesSubfolder = p.posix.dirname(boilerplate.subfolderPath);
+    var templatesDir = Directory(
+      p.join(boilerplateRootDir.path, templatesSubfolder),
+    );
+    var boilerplateDir = Directory(
+      p.join(boilerplateRootDir.path, boilerplate.subfolderPath),
+    );
+
+    await recoverInterruptedSwap(templatesDir);
+    var isCached = await boilerplateDir.exists();
+    var isRecent = false;
+    if (isCached) {
+      // A time in the future, as after the clock was set back, is not recent.
+      var age = DateTime.now().difference((await templatesDir.stat()).modified);
+      isRecent = !age.isNegative && age < templateCacheMaxAge;
     }
+
+    if (argResults!['offline'] as bool ||
+        (isRecent && !(argResults!['refresh'] as bool))) {
+      if (!isCached) {
+        throw Exception(
+          '--offline was selected, but the "${boilerplate.name}" template has not yet been downloaded.',
+        );
+      }
+      print(
+        'Using cached "${boilerplate.name}" template from "${boilerplateDir.path}". '
+        'Run with --refresh to download the latest version.',
+      );
+      return boilerplateDir;
+    }
+
+    // Fetch the latest templates, falling back to the cached copy if the
+    // download fails.
+    print('Downloading templates from "${boilerplate.url}"...');
+    try {
+      await downloadAndExtractSubfolder(
+        repoUrl: boilerplate.url,
+        subfolder: templatesSubfolder,
+        outputDir: templatesDir,
+        ref: boilerplate.ref,
+      );
+      if (!await boilerplateDir.exists()) {
+        throw Exception(
+          '"${boilerplate.subfolderPath}" was not found in ${boilerplate.url}.',
+        );
+      }
+    } catch (e) {
+      if (!isCached || !await boilerplateDir.exists()) rethrow;
+      print(
+        yellow.wrap(
+          'Warning: $e\nUsing cached "${boilerplate.name}" template from "${boilerplateDir.path}".',
+        ),
+      );
+    }
+    return boilerplateDir;
+  }
+
+  /// Whether the copied template's package still has its expected name.
+  ///
+  /// Read from the text, as `renamePubspec` replaces it, rather than parsed, so
+  /// that a pubspec `pubspec_parse` rejects is still renamed. An error reading
+  /// it is thrown rather than taken as another name.
+  Future<bool> _hasTemplateName(Directory projectDir) async {
+    var pubspecFile = File(p.join(projectDir.path, 'pubspec.yaml'));
+    if (!await pubspecFile.exists()) return false;
+    return RegExp(
+      '^name:\\s*${RegExp.escape(templatePackageName)}\\s*\$',
+      multiLine: true,
+    ).hasMatch(await pubspecFile.readAsString());
   }
 
   /// Runs `dart [args]` in [projectDir], returning whether it succeeded.
@@ -291,7 +328,6 @@ const BoilerplateInfo graphQLBoilerplate = BoilerplateInfo(
   'A starter application with GraphQL support.',
   repoLocation,
   'templates/basic_graphql',
-  ref: 'master',
   needsPrebuild: true,
 );
 
@@ -300,7 +336,6 @@ const BoilerplateInfo ormBoilerplate = BoilerplateInfo(
   'A starter application with ORM support for PostgreSQL.',
   repoLocation,
   'templates/basic_postgres_orm',
-  ref: 'master',
   needsPrebuild: true,
 );
 
@@ -309,7 +344,6 @@ const BoilerplateInfo ormMySqlBoilerplate = BoilerplateInfo(
   'A starter application with ORM support for MySQL/MariaDB.',
   repoLocation,
   'templates/basic_mysql_orm',
-  ref: 'master',
   needsPrebuild: true,
 );
 
@@ -318,7 +352,6 @@ const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
   'A basic starter application.',
   repoLocation,
   'templates/basic',
-  ref: 'master',
 );
 
 const List<BoilerplateInfo> boilerplates = [
