@@ -367,6 +367,13 @@ const BoilerplateInfo sembastBoilerplate = BoilerplateInfo(
   'templates/basic_sembast',
 );
 
+const BoilerplateInfo kelicapBoilerplate = BoilerplateInfo(
+  'Kelicap',
+  'A full-stack starter application, with a Kelicap web client.',
+  repoLocation,
+  'templates/basic_kelicap',
+);
+
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
   'Basic',
   'A basic starter application.',
@@ -382,6 +389,7 @@ const List<BoilerplateInfo> boilerplates = [
   mongoBoilerplate,
   rethinkDbBoilerplate,
   sembastBoilerplate,
+  kelicapBoilerplate,
 ];
 
 class BoilerplateInfo {
