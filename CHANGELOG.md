@@ -1,5 +1,11 @@
 # Change Log
 
+## 10.2.0
+
+### New in 10.2.0
+
+* **Init:** `angel3 init` offers a Kelicap template, a `kelicap` Web frontend with REST API
+
 ## 10.1.0
 
 ### New in 10.1.0
