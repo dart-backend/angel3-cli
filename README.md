@@ -43,7 +43,7 @@ angel3 init my_app
 | MongoDB | The basic application, with a REST API of a MongoDB collection (`angel3_mongo`) |
 | RethinkDB | The basic application, with a REST and WebSocket API of a RethinkDB table, which pushes its changefeed to clients (`angel3_rethinkdb`, `angel3_websocket`) |
 | Sembast | The basic application, with a REST API of a store in Sembast, a database in one file that needs no server (`angel3_sembast`) |
-| Kelicap | A full-stack application: an Angel3 API with a [Kelicap](https://github.com/dukefirehawk/kelicap) web client, which calls it with `angel3_client` |
+| Kelicap | A full-stack application: an Angel3 REST API and [Kelicap](https://github.com/dukefirehawk/kelicap) web client with Angel3 client `angel3_client` |
 
 Then follow the `README.md` of the new project to set up its database, if any, and run it.
 
