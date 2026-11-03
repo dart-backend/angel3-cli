@@ -130,12 +130,27 @@ class InitCommand extends Command {
       ..writeln()
       ..writeln(
         'Congratulations! You are ready to start developing with Angel3!',
-      )
+      );
+    var clientServeCommand = boilerplate.clientServeCommand;
+    if (clientServeCommand != null) {
+      stdout
+        ..write('First, to build the web client as its files change, run ')
+        ..write(magenta.wrap('`$clientServeCommand`'))
+        ..writeln(' in another terminal.');
+    }
+    stdout
       ..write('To start the server (with ')
       ..write(cyan.wrap('hot-reloading'))
       ..write('), run ')
       ..write(magenta.wrap('`dart --observe bin/dev.dart`'))
-      ..writeln(' in your terminal.')
+      ..writeln(' in your terminal.');
+    if (clientServeCommand != null) {
+      stdout.writeln(
+        'Then open http://localhost:3000, where the server forwards the pages '
+        'to the client.',
+      );
+    }
+    stdout
       ..writeln()
       ..writeln('Find more documentation about Angel3:')
       ..writeln('  * https://angel3-framework.web.app')
@@ -372,6 +387,7 @@ const BoilerplateInfo kelicapBoilerplate = BoilerplateInfo(
   'A full-stack starter application, with a Kelicap web client.',
   repoLocation,
   'templates/basic_kelicap',
+  clientServeCommand: 'cd client && dart run build_runner serve web:8080',
 );
 
 const BoilerplateInfo basicBoilerplate = BoilerplateInfo(
@@ -398,6 +414,10 @@ class BoilerplateInfo {
   final bool needsPrebuild;
   final String subfolderPath;
 
+  /// For a template with a web client that the server forwards to in
+  /// development, the command that serves it, run in another terminal.
+  final String? clientServeCommand;
+
   const BoilerplateInfo(
     this.name,
     this.description,
@@ -405,6 +425,7 @@ class BoilerplateInfo {
     this.subfolderPath, {
     this.ref = 'master',
     this.needsPrebuild = false,
+    this.clientServeCommand,
   });
 
   @override
